@@ -38,8 +38,6 @@ contract Worldcoin {
     // checks if election is currently taking place (false means no election)
     bool electionProgress = false;
 
-    uint32 epoch = 0;
-
     // Modifier to check if a user is registered
     modifier isRegistered(address _user) {
         require(users[_user].isRegistered, "User is not registered");
@@ -93,13 +91,9 @@ contract Worldcoin {
     }
 
     // begin election at epoch i
-    function beginElection(uint32 i) public {
-        // ensure that 
-        require(i > epoch);
+    function beginElection() public {
         // cannot start election twice
         require(!electionProgress);
-        // set epoch to new epoch number
-        epoch = i;
         // votingInProgress = true;
         electionProgress = true;
 
