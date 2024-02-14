@@ -2,6 +2,8 @@
 
 pragma solidity >=0.8.2 <0.9.0;
 
+import { Contract } from "./Contract.sol";
+
 contract Worldcoin {
     struct User{
         uint32 uid;
@@ -38,6 +40,8 @@ contract Worldcoin {
     // checks if election is currently taking place (false means no election)
     bool electionProgress = false;
 
+    uint32 epoch = 0;
+
     // Modifier to check if a user is registered
     modifier isRegistered(address _user) {
         require(users[_user].isRegistered, "User is not registered");
@@ -51,11 +55,19 @@ contract Worldcoin {
     }
 
     // Function to register an account as a World ID holder
-    function registerAsWorldIDHolder(uint _worldID, bytes32 _name) public {
+    function registerAsWorldIDHolder(
+        uint _worldID, 
+        bytes32 _name,
+        Contract _contract,
+        address signal, 
+        uint256 root, 
+        uint256 nullifierHash, 
+        uint256[8] calldata proof
+        ) public {
         require(!users[msg.sender].isRegistered, "User is already registered");
         require(!electionProgress);
         // Perform checks to verify World ID - how?????
-        verify();
+        _contract.verifyAndExecute(signal, root, nullifierHash, proof);
         // checks if world ID is already registered
         require(!worldIDs[_worldID], "This World ID is already registered");
         worldIDs[_worldID] = true;
@@ -91,9 +103,13 @@ contract Worldcoin {
     }
 
     // begin election at epoch i
-    function beginElection() public {
+    function beginElection(uint32 i) public {
+        // ensure that 
+        require(i > epoch);
         // cannot start election twice
         require(!electionProgress);
+        // set epoch to new epoch number
+        epoch = i;
         // votingInProgress = true;
         electionProgress = true;
 
