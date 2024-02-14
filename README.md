@@ -1,3 +1,3 @@
-# world-id-onchain-template
+# world-id-onchain-template merged with social graph
 
-Template repository for a World ID
+Template repository for a World ID used to verify worldID users
