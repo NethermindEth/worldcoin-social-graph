@@ -47,9 +47,9 @@ export default function Home() {
 				) : (
 					<IDKitWidget
 						signal={address}
-						action="your-action"
+						action="verify-worldid"
 						onSuccess={setProof}
-						app_id={process.env.NEXT_PUBLIC_APP_ID!}
+						app_id={"app_staging_3cd5392cb0348670bcc22377e6090a68"}
 					>
 						{({ open }) => <button onClick={open}>verify with world id</button>}
 					</IDKitWidget>
