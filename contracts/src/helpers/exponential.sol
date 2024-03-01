@@ -1,42 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "https://github.com/abdk-consulting/abdk-libraries-solidity/blob/master/ABDKMath64x64.sol";
+
 contract ExponentialCalculator {
-    function factorial(uint256 n) internal pure returns (uint256) {
-        if (n == 0) return 1;
-        uint256 result = 1;
-        for (uint256 i = 1; i <= n; i++) {
-            result *= i;
-        }
-        return result;
-    }
-    
-    function power(uint256 base, uint256 exponent) internal pure returns (uint256) {
-        uint256 result = 1;
-        for (uint256 i = 0; i < exponent; i++) {
-            result *= base;
-        }
-        return result;
-    }
+    function power(uint256 x) public pure returns (uint) {
+        // Represent the percentage as a fixed-point number.
+        int128 percentage = ABDKMath64x64.divu(x, 100);
 
-    function numDigits(uint256 number) internal pure returns (uint8) {
-        uint8 digits = 0;
-        while (number != 0) {
-            number /= 10;
-            digits++;
-        }
-        return digits;
-    }
+        // Calculate e^(percentage)
+        int128 result = ABDKMath64x64.exp(percentage);
 
-    function calculateReverseExp(uint256 n) public pure returns (uint256) {
-        uint256 result = 1000; // Initialize with 1.00
-        uint256 factor = 1000; // Adjusting factor for decimal places
-        for (uint256 i = 1; i <= 20; i++) { // Approximate up to 10th term of Taylor series
-            result += (power(n, i) * factor) / factorial(i);
-        }
-        //TODO
-        result =  1000 * 10**16/result;
-        return result;
-    }
+        // Multiply by 10^5 to keep 5 decimal places
+        result = ABDKMath64x64.mul(result, ABDKMath64x64.fromUInt(10**5));
 
+        // Invert the exponential as required
+        result = ABDKMath64x64.div(ABDKMath64x64.fromUInt(10**5), result); 
+
+        // Multiply by 10^5 to keep 5 decimal places
+        result = ABDKMath64x64.mul(result, ABDKMath64x64.fromUInt(10**5));
+
+        // Convert the fixed-point result to a uint and return it.
+        return ABDKMath64x64.toUInt(result);
+    }
 }
