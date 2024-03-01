@@ -19,21 +19,31 @@ contract Voting is Worldcoin {
         else return 2;
     }
 
-    function recommendCandidate(address _candidate, uint _levelOfVote) external isRegistered(msg.sender) {
-        require(users[_candidate].isRegistered, "Candidate not registered");
-        require(_levelOfVote == 1 || _levelOfVote == 2 || _levelOfVote == 3, "Level of vote can only be 1, 2 or 3");
-        //adding relevant information about voting to the struct
-        users[msg.sender].recommendees.push(_candidate);
-        users[_candidate].recommenders.push(msg.sender);
+    function recommendCandidate(VotingPair[] memory _votes) external canVote(msg.sender) {
+        uint sumOfWeights=0;
+        // Iterate through the array of votes
+        for (uint i = 0; i < _votes.length; i++) {
+            // Access each pair (userID, weight)
+            uint _userID = _votes[i].userID;
+            //TODO - exits if even one candidate wrong
+            require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
+            uint _weight = _votes[i].weight;
+            sumOfWeights+=_weight;
+        }
 
-        //assign value to the candidate node
-        //maximum value of any user at any point can only be 100 - //TODO
-        uint eVal = users[msg.sender].val * _levelOfVote;
-        uint currentVal = users[_candidate].val;
-        //TODO
-        users[_candidate].val = 100 - e.calculateReverseExp((currentVal + eVal/3));
+        require(users[msg.sender].vhot >= sumOfWeights, "Donot have enough voting power left");
+        users[msg.sender].vhot -= sumOfWeights;
+        users[msg.sender].vcold += sumOfWeights;
+        
+        for (uint i = 0; i < _votes.length; i++) {
+            uint _userID = _votes[i].userID;
+            uint _weight = _votes[i].weight;
+            uint _uidOfSender = users[msg.sender].uid;
+            address addOfRecommendedCandidate = userAddress[_userID];
 
-        //assign status according to VAL of node
-        users[_candidate].status = assignStatus(users[_candidate].val);
+            users[msg.sender].recommendees.push(_votes[i]);
+            users[addOfRecommendedCandidate].recommenders.push(VotingPair(_uidOfSender, _weight));
+        }  
+
     }
 }
