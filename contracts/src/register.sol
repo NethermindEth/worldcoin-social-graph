@@ -20,7 +20,7 @@ contract Register is Worldcoin {
         // checks if world ID is already registered
         require(!worldIDs[_worldID], "This World ID is already registered");
         worldIDs[_worldID] = true;
-        // add user to user map
+        // add new user to user map
         users[msg.sender] = User(id, _name, true, true, _worldID, 1, 1, 0, 0, new VotingPair[](0), new VotingPair[](0), 0);
         userAddress[id++] = msg.sender;
     }
