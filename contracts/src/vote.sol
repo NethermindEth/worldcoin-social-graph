@@ -10,13 +10,29 @@ contract Voting is Worldcoin {
         e = ExponentialCalculator(_address);
     }
 
-    function assignStatus(uint val) internal pure returns(uint) {
-        //0 - World ID identities, 1 - Derived identities, 2 - Ascendants, 3 - Rejected
-        if(val>=1)
-            return 1;
-        else if(val<0)
-            return 3;
-        else return 2;
+    function updateStatusVerified(uint x) public isRegistered(msg.sender) {
+        uint256 y;
+        for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
+            y += users[msg.sender].recommenders[i].weight;
+        }
+        
+        //TODO confirm overflows and verify corner cases like x=0
+        uint val = 1 - e.power(y*50);
+        uint B = 1 - e.power(x/2);
+        require(val>=B && users[msg.sender].status == 2,"Not eligible to update Status");
+        users[msg.sender].status = 1;
+        users[msg.sender].vhot = val;
+        users[msg.sender].vcold = 0;
+
+        for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
+            uint _userID = users[msg.sender].recommenders[i].userID;
+            uint _weight = users[msg.sender].recommenders[i].weight;
+            address addOfRecommenderCandidate = userAddress[_userID];
+            users[addOfRecommenderCandidate].vhot += _weight;
+            users[addOfRecommenderCandidate].vcold -= _weight;
+
+            rewards[_userID] += _weight;
+        }
     }
 
     function recommendCandidate(VotingPair[] memory _votes) external canVote(msg.sender) {
@@ -25,13 +41,13 @@ contract Voting is Worldcoin {
         for (uint i = 0; i < _votes.length; i++) {
             // Access each pair (userID, weight)
             uint _userID = _votes[i].userID;
-            //TODO - exits if even one candidate wrong
+            //exits if even one candidate user ID is invalid
             require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
             uint _weight = _votes[i].weight;
             sumOfWeights+=_weight;
         }
 
-        require(users[msg.sender].vhot >= sumOfWeights, "Donot have enough voting power left");
+        require(users[msg.sender].vhot >= sumOfWeights, "Do not have enough voting power left");
         users[msg.sender].vhot -= sumOfWeights;
         users[msg.sender].vcold += sumOfWeights;
         
