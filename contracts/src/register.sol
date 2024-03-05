@@ -28,7 +28,7 @@ contract Register is Worldcoin {
     // Function to register an account as a Candidate
     function registerAsCandidate(bytes32 _name) external {
         require(!users[msg.sender].isRegistered, "User is already registered");
-        // add user to user map  
+        // add user to user map
         users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 0, 2, new VotingPair[](0), new VotingPair[](0), 0);
         userAddress[id++] = msg.sender;
     }
