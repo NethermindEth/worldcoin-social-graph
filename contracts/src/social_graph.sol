@@ -37,6 +37,7 @@ contract Worldcoin {
     //stores candidates and world Id holders
     mapping(address => User) public users;
     mapping(uint => address) public userAddress;
+    mapping(uint => uint) public rewards;
     
     //stores the registered world ID holders ---check
     mapping(uint => bool) public worldIDs;
