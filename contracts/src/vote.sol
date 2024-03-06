@@ -60,6 +60,33 @@ contract Voting is Worldcoin {
             users[msg.sender].recommendees.push(_votes[i]);
             users[addOfRecommendedCandidate].recommenders.push(VotingPair(_uidOfSender, _weight));
         }  
+    }
 
+    function penalise(uint userID) public isRegistered(msg.sender){
+        // Check that userID is recommender of sender
+        require(users[msg.sender].recommenders[userID], "UserID must have recommended sender");
+        // set t to be weight
+        uint t;
+        // position of recommender in sender's recommenders lists
+        uint position;
+        // find user in user's recommenders lists
+        for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
+            if (users[msg.sender].recommenders[i].uid == userID) {
+                // set t to vote weight
+                t = users[msg.sender].recommenders[i].weight;
+                position = i;
+                break;
+            }
+        }
+        // reduce vhot or vcold of userID
+        if (users[msg.sender].status = 1) {
+            userAddress[userID].vhot -= t;
+        } else {
+            userAddress[userID].vcold -= t;
+            // remove userID from sender's recommender list
+            delete users[msg.sender].recommenders[position];
+        }
+        // reduce val of sender
+        users[msg.sender].val -= t;
     }
 }
