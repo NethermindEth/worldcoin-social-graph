@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "https://github.com/abdk-consulting/abdk-libraries-solidity/blob/master/ABDKMath64x64.sol";
 
 contract ExponentialCalculator {
-    function power(uint256 x) public pure returns (uint) {
+    function inversePower(uint256 x) public pure returns (uint) {
         // Represent the percentage as a fixed-point number.
         int128 percentage = ABDKMath64x64.divu(x, 100);
 
