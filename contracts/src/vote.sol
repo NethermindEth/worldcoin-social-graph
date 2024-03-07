@@ -10,7 +10,7 @@ contract Voting is Worldcoin {
         e = ExponentialCalculator(_address);
     }
 
-    function updateStatusVerified(uint x) public isRegistered(msg.sender) {
+    function updateStatusVerified() public isRegistered(msg.sender) {
         // msg.sender should be a candidate
         require(users[msg.sender].status == 2,"Not eligible to update Status");
         uint256 y = 0;
@@ -22,7 +22,7 @@ contract Voting is Worldcoin {
         //val refers to the voting power a user has
         // val currently has precision of 5 decimals
         uint val = 10**5 - e.inversePower(y/2);
-        //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
+        
         //B uses x*100/2 in its formula to convert to the point system suitably
         uint B = 10**5 - e.inversePower(x*50);
         require(val >= B,"Not eligible to update Status");

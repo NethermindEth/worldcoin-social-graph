@@ -33,7 +33,9 @@ contract Worldcoin {
         uint totalReward;
     }
     
-    uint public id = 0;
+    uint internal id = 0;
+    //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
+    uint internal x;
     //stores candidates and world Id holders
     mapping(address => User) public users;
     mapping(uint => address) public userAddress;
