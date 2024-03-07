@@ -67,27 +67,29 @@ contract Voting is Worldcoin {
         }  
     }
 
+    function isRecommender(uint userID, address _sender) internal view returns (bool isRec, uint pos) {
+        for (uint i = 0; i < users[_sender].recommenders.length; i++) {
+            if (users[_sender].recommenders[i].userID == userID) {
+                return (true, i);
+            }
+        }
+        return (false, 0);
+    }
+
     function penalise(uint userID) public isRegistered(msg.sender){
         // Check that userID is recommender of sender
-        require(users[msg.sender].recommenders[userID], "UserID must have recommended sender");
         // set t to be weight
         uint t;
         // position of recommender in sender's recommenders lists
-        uint position;
-        // find user in user's recommenders lists
-        for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
-            if (users[msg.sender].recommenders[i].uid == userID) {
-                // set t to vote weight
-                t = users[msg.sender].recommenders[i].weight;
-                position = i;
-                break;
-            }
+        (bool isRec, uint position) = isRecommender(userID, msg.sender);
+        if (!isRec) {
+            revert("Not a recommender");
         }
         // reduce vhot or vcold of userID
-        if (users[msg.sender].status = 1) {
-            userAddress[userID].vhot -= t;
+        if (users[msg.sender].status == 1) {
+            users[userAddress[userID]].vhot -= t;
         } else {
-            userAddress[userID].vcold -= t;
+            users[userAddress[userID]].vcold -= t;
             // remove userID from sender's recommender list
             delete users[msg.sender].recommenders[position];
         }
