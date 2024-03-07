@@ -11,17 +11,23 @@ contract Voting is Worldcoin {
     }
 
     function updateStatusVerified(uint x) public isRegistered(msg.sender) {
-        uint256 y;
+        // msg.sender should be a candidate
+        require(users[msg.sender].status == 2,"Not eligible to update Status");
+        uint256 y = 0;
         for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
+            //y stores the total weight received as votes
             y += users[msg.sender].recommenders[i].weight;
         }
         
-        //TODO confirm overflows and verify corner cases like x=0
-        uint val = 1 - e.power(y*50);
-        uint B = 1 - e.power(x/2);
-        require(val>=B && users[msg.sender].status == 2,"Not eligible to update Status");
+        //val refers to the voting power a user has
+        // val currently has precision of 5 decimals
+        uint val = 10**5 - e.inversePower(y/2);
+        //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
+        //B uses x*100/2 in its formula to convert to the point system suitably
+        uint B = 10**5 - e.inversePower(x*50);
+        require(val >= B,"Not eligible to update Status");
         users[msg.sender].status = 1;
-        users[msg.sender].vhot = val;
+        users[msg.sender].vhot = val/10**3;
         users[msg.sender].vcold = 0;
 
         for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
@@ -30,7 +36,6 @@ contract Voting is Worldcoin {
             address addOfRecommenderCandidate = userAddress[_userID];
             users[addOfRecommenderCandidate].vhot += _weight;
             users[addOfRecommenderCandidate].vcold -= _weight;
-
             rewards[_userID] += _weight;
         }
     }
