@@ -67,12 +67,14 @@ contract Voting is Worldcoin {
         }  
     }
 
-    function isRecommender(uint userID, address _sender) internal view returns (bool isRec, uint pos) {
+    function getRecommender(uint userID, address _sender) internal view returns (bool isRec, uint pos) {
+        // Will loop through recommenders looking for userID
         for (uint i = 0; i < users[_sender].recommenders.length; i++) {
             if (users[_sender].recommenders[i].userID == userID) {
                 return (true, i);
             }
         }
+        // If no recommender is found, returns false
         return (false, 0);
     }
 
@@ -81,7 +83,7 @@ contract Voting is Worldcoin {
         // set t to be weight
         uint t;
         // position of recommender in sender's recommenders lists
-        (bool isRec, uint position) = isRecommender(userID, msg.sender);
+        (bool isRec, uint position) = getRecommender(userID, msg.sender);
         if (!isRec) {
             revert("Not a recommender");
         }
