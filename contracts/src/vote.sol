@@ -18,17 +18,15 @@ contract Voting is Worldcoin {
             //y stores the total weight received as votes
             y += users[msg.sender].recommenders[i].weight;
         }
-        
+        require(y > x, "user should have higher power than threshold");
         //val refers to the voting power a user has
         // val currently has precision of 5 decimals
         uint val = 10**5 - e.inversePower(y/2);
         
-        //B uses x*100/2 in its formula to convert to the point system suitably
-        uint B = 10**5 - e.inversePower(x*50);
-        require(val >= B,"Not eligible to update Status");
         users[msg.sender].status = 1;
         users[msg.sender].vhot = val/10**3;
         users[msg.sender].vcold = 0;
+        users[msg.sender].val = val;
 
         for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
             uint _userID = users[msg.sender].recommenders[i].userID;
