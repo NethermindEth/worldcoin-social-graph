@@ -87,8 +87,7 @@ contract Voting is Worldcoin {
         }
         // reduce vhot or vcold of userID
         if (users[msg.sender].status == 1) {
-            // TODO: MUST BE alpha * t
-            users[userAddress[userID]].vhot -= t;
+            users[userAddress[userID]].vhot -= a * t;
         } else {
             users[userAddress[userID]].vcold -= t;
             // remove userID from sender's recommender list
