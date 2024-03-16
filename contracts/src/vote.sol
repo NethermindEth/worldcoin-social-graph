@@ -94,6 +94,6 @@ contract Voting is Worldcoin {
             delete users[msg.sender].recommenders[position];
         }
         // reduce val of sender
-        users[msg.sender].val -= t;
+        users[msg.sender].val -= a * t;
     }
 }
