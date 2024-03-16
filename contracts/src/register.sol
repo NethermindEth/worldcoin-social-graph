@@ -20,16 +20,20 @@ contract Register is Worldcoin {
         // checks if world ID is already registered
         require(!worldIDs[_worldID], "This World ID is already registered");
         worldIDs[_worldID] = true;
+        // compute current epoch
+        uint c_epoch = (block.number/50064) + 1;
         // add new user to user map
-        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 100, 0, 0, new VotingPair[](0), new VotingPair[](0), 0);
+        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 100, 0, 0, new VotingPair[](0), new VotingPair[](0), 0, c_epoch);
         userAddress[id++] = msg.sender;
     }
     
     // Function to register an account as a Candidate
     function registerAsCandidate(bytes32 _name) external {
         require(!users[msg.sender].isRegistered, "User is already registered");
+        // compute current epoch
+        uint c_epoch = (block.number/50064) + 1;
         // add user to user map
-        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 0, 2, new VotingPair[](0), new VotingPair[](0), 0);
+        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 0, 2, new VotingPair[](0), new VotingPair[](0), 0, c_epoch);
         userAddress[id++] = msg.sender;
     }
 }

@@ -31,16 +31,30 @@ contract Worldcoin {
         VotingPair[] recommenders; // users who vote/vouch for you
 
         uint totalReward;
+
+        // last epoch for which the user claimed their voting rewards
+        uint lepoch;
     }
+
+    struct Rewards {
+        // total number of voting power allocated to the candidates
+        uint sum;
+        // total number of voting power claimed by the voters
+        uint claimed;
+    }
+
+    mapping (uint => Rewards) rewards_per_epoch;
     
     uint internal id = 0;
     //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
     uint internal x;
+    // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a candidate becomes verified.
+    uint internal a;
     //stores candidates and world Id holders
     mapping(address => User) public users;
     mapping(uint => address) public userAddress;
     mapping(uint => uint) public rewards;
-    
+
     //stores the registered world ID holders ---check
     mapping(uint => bool) public worldIDs;
 
@@ -61,5 +75,4 @@ contract Worldcoin {
         require(users[_user].status == 0 || users[_user].status == 1, "User cannot vote");
         _;
     }
-
 }

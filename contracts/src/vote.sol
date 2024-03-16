@@ -87,6 +87,7 @@ contract Voting is Worldcoin {
         }
         // reduce vhot or vcold of userID
         if (users[msg.sender].status == 1) {
+            // TODO: MUST BE alpha * t
             users[userAddress[userID]].vhot -= t;
         } else {
             users[userAddress[userID]].vcold -= t;
