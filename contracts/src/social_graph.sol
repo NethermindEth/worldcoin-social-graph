@@ -10,6 +10,11 @@ contract Worldcoin {
         uint weight;
     }
 
+    struct EpochToWeight {
+        uint epoch;
+        uint weight;
+    }
+
     struct User{
         uint uid;
         bytes32 name;
@@ -34,6 +39,8 @@ contract Worldcoin {
 
         // last epoch for which the user claimed their voting rewards
         uint lepoch;
+        // counting weights per epoch
+        EpochToWeight[] epochWeights;
     }
 
     struct Rewards {
@@ -53,7 +60,6 @@ contract Worldcoin {
     //stores candidates and world Id holders
     mapping(address => User) public users;
     mapping(uint => address) public userAddress;
-    mapping(uint => uint) public rewards;
 
     //stores the registered world ID holders ---check
     mapping(uint => bool) public worldIDs;

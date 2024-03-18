@@ -23,7 +23,7 @@ contract Register is Worldcoin {
         // compute current epoch
         uint c_epoch = (block.number/50064) + 1;
         // add new user to user map
-        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 100, 0, 0, new VotingPair[](0), new VotingPair[](0), 0, c_epoch);
+        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 100, 0, 0, new VotingPair[](0), new VotingPair[](0), 0, c_epoch, new EpochToWeight[](0));
         userAddress[id++] = msg.sender;
     }
     
@@ -33,7 +33,7 @@ contract Register is Worldcoin {
         // compute current epoch
         uint c_epoch = (block.number/50064) + 1;
         // add user to user map
-        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 0, 2, new VotingPair[](0), new VotingPair[](0), 0, c_epoch);
+        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 0, 2, new VotingPair[](0), new VotingPair[](0), 0, c_epoch, new EpochToWeight[](0));
         userAddress[id++] = msg.sender;
     }
 }

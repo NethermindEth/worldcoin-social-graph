@@ -28,13 +28,18 @@ contract Voting is Worldcoin {
         users[msg.sender].vcold = 0;
         users[msg.sender].val = val;
 
+        uint c_epoch = (block.number/50064) + 1;
+
         for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
             uint _userID = users[msg.sender].recommenders[i].userID;
             uint _weight = users[msg.sender].recommenders[i].weight;
             address addOfRecommenderCandidate = userAddress[_userID];
-            users[addOfRecommenderCandidate].vhot += _weight;
+
+            users[addOfRecommenderCandidate].vhot += a * _weight;
             users[addOfRecommenderCandidate].vcold -= _weight;
-            rewards[_userID] += _weight;
+            
+            users[addOfRecommenderCandidate].epochWeights.push(EpochToWeight(c_epoch, weight));
+            rewards_per_epoch[c_epoch].sum += weight;
         }
     }
 
