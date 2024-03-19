@@ -25,7 +25,7 @@ contract Register is Worldcoin {
         // add new user to user map
         // TODO correct the passing of empty mapping epochWeights
         VotingPair[] memory vp;
-        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 0, 0, vp, vp, 0, c_epoch);
+        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 0, 0, 0,vp, vp, 0, c_epoch);
         user_epoch_weights[msg.sender][c_epoch] = 0;
         userAddress[id++] = msg.sender;
     }
@@ -37,7 +37,7 @@ contract Register is Worldcoin {
         uint c_epoch = (block.number/50064) + 1;
         // add user to user map
         VotingPair[] memory vp;
-        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 2, vp, vp, 0, c_epoch);
+        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 0, 2,vp, vp, 0, c_epoch);
         userAddress[id++] = msg.sender;
     }
 }
