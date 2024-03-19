@@ -34,10 +34,11 @@ contract Voting is Worldcoin {
             uint _weight = users[msg.sender].recommenders[i].weight;
             address addOfRecommenderCandidate = userAddress[_userID];
 
-            users[addOfRecommenderCandidate].vhot += a * _weight;
+            users[addOfRecommenderCandidate].vhot += a * _weight / 100;
             users[addOfRecommenderCandidate].vcold -= _weight;
             
-            users[addOfRecommenderCandidate].epochWeights[c_epoch] = _weight;
+            // users[addOfRecommenderCandidate].epochWeights[c_epoch] = _weight;
+            user_epoch_weights[msg.sender][c_epoch] += _weight;
             rewards_per_epoch[c_epoch].sum += _weight;
         }
     }
@@ -91,14 +92,14 @@ contract Voting is Worldcoin {
         }
         // reduce vhot or vcold of userID
         if (users[msg.sender].status == 1) {
-            users[userAddress[userID]].vhot -= a * t;
+            users[userAddress[userID]].vhot -= a * t / 100;
         } else {
             users[userAddress[userID]].vcold -= t;
             // remove userID from sender's recommender list
             delete users[msg.sender].recommenders[position];
         }
         // reduce val of sender
-        users[msg.sender].val -= a * t;
+        users[msg.sender].val -= a * t / 100;
     }
 
     function claimReward() public isRegistered(msg.sender) {
@@ -106,12 +107,12 @@ contract Voting is Worldcoin {
         uint l_epoch = users[msg.sender].lepoch;
         for(uint i = l_epoch + 1; i <= c_epoch - 1; i++) {
             // increase totalReward of the sender in users map
-            users[msg.sender].totalReward += c*(users[msg.sender].epochWeights[i]/rewards_per_epoch[i].sum);
+            users[msg.sender].totalReward += c*(user_epoch_weights[msg.sender][i]/rewards_per_epoch[i].sum);
             // increase entry claimed in the rewards map for epoch i
-            rewards_per_epoch[i].claimed += users[msg.sender].epochWeights[i];
+            rewards_per_epoch[i].claimed += user_epoch_weights[msg.sender][i];
             if(rewards_per_epoch[i].sum == rewards_per_epoch[i].claimed)
                 delete(rewards_per_epoch[i]);
-            delete(users[msg.sender].epochWeights[i]);
+            delete(user_epoch_weights[msg.sender][i]);
         }
         users[msg.sender].lepoch = c_epoch - 1;
     }

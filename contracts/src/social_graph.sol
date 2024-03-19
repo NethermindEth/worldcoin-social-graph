@@ -23,6 +23,7 @@ contract Worldcoin {
         //VAL of node and is a dynamic variable
         uint vhot;
         uint vcold;
+        uint val;
         //depends on `VAL` of node and is dynamic 
         //0 - World ID identities, 1 - Derived identities, 2 - Ascendants, 3 - Rejected
         uint status;
@@ -33,9 +34,6 @@ contract Worldcoin {
 
         // last epoch for which the user claimed their voting rewards
         uint lepoch;
-        // counting weights per epoch
-        //map takes epoch to corresponding weight assigned in that epoch
-        mapping(uint => uint) epochWeights;
     }
 
     struct Rewards {
@@ -46,6 +44,10 @@ contract Worldcoin {
     }
 
     mapping (uint => Rewards) rewards_per_epoch;
+
+    // counting weights per epoch
+    // map takes epoch to corresponding weight assigned in that epoch
+    mapping (address => mapping (uint => uint) epochWeights) user_epoch_weights;
     
     uint internal id = 0;
     //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
