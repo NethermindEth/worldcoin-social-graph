@@ -10,11 +10,6 @@ contract Worldcoin {
         uint weight;
     }
 
-    struct EpochToWeight {
-        uint epoch;
-        uint weight;
-    }
-
     struct User{
         uint uid;
         bytes32 name;
@@ -26,7 +21,6 @@ contract Worldcoin {
         uint WorldID;
 
         //VAL of node and is a dynamic variable
-        uint val;
         uint vhot;
         uint vcold;
         //depends on `VAL` of node and is dynamic 

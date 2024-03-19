@@ -26,7 +26,6 @@ contract Voting is Worldcoin {
         users[msg.sender].status = 1;
         users[msg.sender].vhot = val/10**3;
         users[msg.sender].vcold = 0;
-        users[msg.sender].val = val;
 
         uint c_epoch = (block.number/50064) + 1;
 
@@ -106,7 +105,9 @@ contract Voting is Worldcoin {
         uint c_epoch = (block.number/50064) + 1;
         uint l_epoch = users[msg.sender].lepoch;
         for(uint i = l_epoch + 1; i <= c_epoch - 1; i++) {
+            // increase totalReward of the sender in users map
             users[msg.sender].totalReward += c*(users[msg.sender].epochWeights[i]/rewards_per_epoch[i].sum);
+            // increase entry claimed in the rewards map for epoch i
             rewards_per_epoch[i].claimed += users[msg.sender].epochWeights[i];
             if(rewards_per_epoch[i].sum == rewards_per_epoch[i].claimed)
                 delete(rewards_per_epoch[i]);
