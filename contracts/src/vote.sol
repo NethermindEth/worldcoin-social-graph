@@ -38,8 +38,8 @@ contract Voting is Worldcoin {
             users[addOfRecommenderCandidate].vhot += a * _weight;
             users[addOfRecommenderCandidate].vcold -= _weight;
             
-            users[addOfRecommenderCandidate].epochWeights.push(EpochToWeight(c_epoch, weight));
-            rewards_per_epoch[c_epoch].sum += weight;
+            users[addOfRecommenderCandidate].epochWeights[c_epoch] = _weight;
+            rewards_per_epoch[c_epoch].sum += _weight;
         }
     }
 
@@ -100,5 +100,18 @@ contract Voting is Worldcoin {
         }
         // reduce val of sender
         users[msg.sender].val -= a * t;
+    }
+
+    function claimReward() public isRegistered(msg.sender) {
+        uint c_epoch = (block.number/50064) + 1;
+        uint l_epoch = users[msg.sender].lepoch;
+        for(uint i = l_epoch + 1; i <= c_epoch - 1; i++) {
+            users[msg.sender].totalReward += c*(users[msg.sender].epochWeights[i]/rewards_per_epoch[i].sum);
+            rewards_per_epoch[i].claimed += users[msg.sender].epochWeights[i];
+            if(rewards_per_epoch[i].sum == rewards_per_epoch[i].claimed)
+                delete(rewards_per_epoch[i]);
+            delete(users[msg.sender].epochWeights[i]);
+        }
+        users[msg.sender].lepoch = c_epoch - 1;
     }
 }

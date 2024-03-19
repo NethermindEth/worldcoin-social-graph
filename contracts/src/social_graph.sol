@@ -40,7 +40,8 @@ contract Worldcoin {
         // last epoch for which the user claimed their voting rewards
         uint lepoch;
         // counting weights per epoch
-        EpochToWeight[] epochWeights;
+        //map takes epoch to corresponding weight assigned in that epoch
+        mapping(uint => uint) epochWeights;
     }
 
     struct Rewards {
@@ -55,8 +56,10 @@ contract Worldcoin {
     uint internal id = 0;
     //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
     uint internal x;
-    // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a candidate becomes verified.
+    // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a candidate becomes verified
     uint internal a;
+    // parameter that determines the rewards per epoch to be shared
+    uint internal c;
     //stores candidates and world Id holders
     mapping(address => User) public users;
     mapping(uint => address) public userAddress;
