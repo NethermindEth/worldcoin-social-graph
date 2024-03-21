@@ -45,7 +45,7 @@ contract Voting is Worldcoin {
             //y stores the total weight received as votes
             y += users[msg.sender].recommenders[i].weight;
         }
-        require(y > x, "user should have higher power than threshold");
+        require(y > x, "User should have higher power than threshold");
         //val refers to the voting power a user has
         // val currently has precision of 5 decimals
         uint val = 10**5 - e.inversePower(y/2);
@@ -64,8 +64,7 @@ contract Voting is Worldcoin {
             users[addOfRecommenderCandidate].vhot += a * _weight / 100;
             users[addOfRecommenderCandidate].vcold -= _weight;
             
-            // users[addOfRecommenderCandidate].epochWeights[c_epoch] = _weight;
-            user_epoch_weights[msg.sender][c_epoch] += _weight;
+            user_epoch_weights[addOfRecommenderCandidate][c_epoch] += _weight;
             rewards_per_epoch[c_epoch].sum += _weight;
         }
     }
