@@ -10,6 +10,33 @@ contract Voting is Worldcoin {
         e = ExponentialCalculator(_address);
     }
 
+    function recommendCandidate(VotingPair[] memory _votes) external canVote(msg.sender) {
+        uint sumOfWeights=0;
+        // Iterate through the array of votes
+        for (uint i = 0; i < _votes.length; i++) {
+            // Access each pair (userID, weight)
+            uint _userID = _votes[i].userID;
+            //exits if even one candidate user ID is invalid
+            require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
+            uint _weight = _votes[i].weight;
+            sumOfWeights+=_weight;
+        }
+
+        require(users[msg.sender].vhot >= sumOfWeights, "Do not have enough voting power left");
+        users[msg.sender].vhot -= sumOfWeights;
+        users[msg.sender].vcold += sumOfWeights;
+        
+        for (uint i = 0; i < _votes.length; i++) {
+            uint _userID = _votes[i].userID;
+            uint _weight = _votes[i].weight;
+            uint _uidOfSender = users[msg.sender].uid;
+            address addOfRecommendedCandidate = userAddress[_userID];
+
+            users[msg.sender].recommendees.push(_votes[i]);
+            users[addOfRecommendedCandidate].recommenders.push(VotingPair(_uidOfSender, _weight));
+        }  
+    }
+
     function updateStatusVerified() public isRegistered(msg.sender) {
         // msg.sender should be a candidate
         require(users[msg.sender].status == 2,"Not eligible to update Status");
@@ -43,33 +70,6 @@ contract Voting is Worldcoin {
         }
     }
 
-    function recommendCandidate(VotingPair[] memory _votes) external canVote(msg.sender) {
-        uint sumOfWeights=0;
-        // Iterate through the array of votes
-        for (uint i = 0; i < _votes.length; i++) {
-            // Access each pair (userID, weight)
-            uint _userID = _votes[i].userID;
-            //exits if even one candidate user ID is invalid
-            require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
-            uint _weight = _votes[i].weight;
-            sumOfWeights+=_weight;
-        }
-
-        require(users[msg.sender].vhot >= sumOfWeights, "Do not have enough voting power left");
-        users[msg.sender].vhot -= sumOfWeights;
-        users[msg.sender].vcold += sumOfWeights;
-        
-        for (uint i = 0; i < _votes.length; i++) {
-            uint _userID = _votes[i].userID;
-            uint _weight = _votes[i].weight;
-            uint _uidOfSender = users[msg.sender].uid;
-            address addOfRecommendedCandidate = userAddress[_userID];
-
-            users[msg.sender].recommendees.push(_votes[i]);
-            users[addOfRecommendedCandidate].recommenders.push(VotingPair(_uidOfSender, _weight));
-        }  
-    }
-
     function getRecommender(uint userID, address _sender) internal view returns (bool isRec, uint pos) {
         // Will loop through recommenders looking for userID
         for (uint i = 0; i < users[_sender].recommenders.length; i++) {
@@ -87,9 +87,7 @@ contract Voting is Worldcoin {
         uint t;
         // position of recommender in sender's recommenders lists
         (bool isRec, uint position) = getRecommender(userID, msg.sender);
-        if (!isRec) {
-            revert("Not a recommender");
-        }
+        require(isRec, "UserID is not a recommender");
         // reduce vhot or vcold of userID
         if (users[msg.sender].status == 1) {
             users[userAddress[userID]].vhot -= a * t / 100;
@@ -98,8 +96,6 @@ contract Voting is Worldcoin {
             // remove userID from sender's recommender list
             delete users[msg.sender].recommenders[position];
         }
-        // reduce val of sender
-        users[msg.sender].val -= a * t / 100;
     }
 
     function claimReward() public isRegistered(msg.sender) {
