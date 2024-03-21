@@ -82,11 +82,11 @@ contract Voting is Worldcoin {
 
     function penalise(uint userID) public isRegistered(msg.sender){
         // Check that userID is recommender of sender
-        // set t to be weight
-        uint t;
         // position of recommender in sender's recommenders lists
         (bool isRec, uint position) = getRecommender(userID, msg.sender);
         require(isRec, "UserID is not a recommender");
+        // set t to be weight
+        uint t = users[msg.sender].recommenders[position].weight;
         // reduce vhot or vcold of userID
         if (users[msg.sender].status == 1) {
             users[userAddress[userID]].vhot -= a * t / 100;
