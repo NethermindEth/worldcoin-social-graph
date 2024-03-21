@@ -105,8 +105,9 @@ contract Voting is Worldcoin {
             users[msg.sender].totalReward += c*(user_epoch_weights[msg.sender][i]/rewards_per_epoch[i].sum);
             // increase entry claimed in the rewards map for epoch i
             rewards_per_epoch[i].claimed += user_epoch_weights[msg.sender][i];
-            if(rewards_per_epoch[i].sum == rewards_per_epoch[i].claimed)
+            if(rewards_per_epoch[i].sum == rewards_per_epoch[i].claimed) {
                 delete(rewards_per_epoch[i]);
+            }
             delete(user_epoch_weights[msg.sender][i]);
         }
         users[msg.sender].lepoch = c_epoch - 1;
