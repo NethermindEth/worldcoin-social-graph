@@ -32,8 +32,8 @@ contract Voting is Worldcoin {
             uint _uidOfSender = users[msg.sender].uid;
             address addOfRecommendedCandidate = userAddress[_userID];
 
-            users[msg.sender].recommendees.push(_votes[i]);
-            users[addOfRecommendedCandidate].recommenders.push(VotingPair(_uidOfSender, _weight));
+            recommendees[msg.sender].push(_votes[i]);
+            recommenders[addOfRecommendedCandidate].push(VotingPair(_uidOfSender, _weight));
         }  
     }
 
@@ -41,9 +41,9 @@ contract Voting is Worldcoin {
         // msg.sender should be a candidate
         require(users[msg.sender].status == 2,"Not eligible to update Status");
         uint256 y = 0;
-        for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
+        for (uint i = 0; i < recommenders[msg.sender].length; i++) {
             //y stores the total weight received as votes
-            y += users[msg.sender].recommenders[i].weight;
+            y += recommenders[msg.sender][i].weight;
         }
         require(y > x, "User should have higher power than threshold");
         //val refers to the voting power a user has
@@ -56,12 +56,12 @@ contract Voting is Worldcoin {
 
         uint c_epoch = (block.number/50064) + 1;
 
-        for (uint i = 0; i < users[msg.sender].recommenders.length; i++) {
-            uint _userID = users[msg.sender].recommenders[i].userID;
-            uint _weight = users[msg.sender].recommenders[i].weight;
+        for (uint i = 0; i < recommenders[msg.sender].length; i++) {
+            uint _userID = recommenders[msg.sender][i].userID;
+            uint _weight = recommenders[msg.sender][i].weight;
             address addOfRecommenderCandidate = userAddress[_userID];
 
-            users[addOfRecommenderCandidate].vhot += a * _weight / 100;
+            users[addOfRecommenderCandidate].vhot += (a * _weight) / 100;
             users[addOfRecommenderCandidate].vcold -= _weight;
             
             user_epoch_weights[addOfRecommenderCandidate][c_epoch] += _weight;
@@ -71,8 +71,8 @@ contract Voting is Worldcoin {
 
     function getRecommender(uint userID, address _sender) internal view returns (bool isRec, uint pos) {
         // Will loop through recommenders looking for userID
-        for (uint i = 0; i < users[_sender].recommenders.length; i++) {
-            if (users[_sender].recommenders[i].userID == userID) {
+        for (uint i = 0; i < recommenders[_sender].length; i++) {
+            if (recommenders[_sender][i].userID == userID) {
                 return (true, i);
             }
         }
@@ -86,14 +86,14 @@ contract Voting is Worldcoin {
         (bool isRec, uint position) = getRecommender(userID, msg.sender);
         require(isRec, "UserID is not a recommender");
         // set t to be weight
-        uint t = users[msg.sender].recommenders[position].weight;
+        uint t = recommenders[msg.sender][position].weight;
         // reduce vhot or vcold of userID
         if (users[msg.sender].status == 1) {
-            users[userAddress[userID]].vhot -= a * t / 100;
+            users[userAddress[userID]].vhot -= (a * t) / 100;
         } else {
             users[userAddress[userID]].vcold -= t;
             // remove userID from sender's recommender list
-            delete users[msg.sender].recommenders[position];
+            delete recommenders[msg.sender][position];
         }
     }
 

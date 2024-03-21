@@ -26,8 +26,6 @@ contract Worldcoin {
         //depends on `VAL` of node and is dynamic 
         //0 - World ID identities, 1 - Derived identities, 2 - Ascendants, 3 - Rejected
         uint status;
-        VotingPair[] recommendees; // users who you vote/vouch for
-        VotingPair[] recommenders; // users who vote/vouch for you
 
         uint totalReward;
 
@@ -58,6 +56,9 @@ contract Worldcoin {
     //stores candidates and world Id holders
     mapping(address => User) public users;
     mapping(uint => address) public userAddress;
+
+    mapping(address => VotingPair[]) public recommendees; // users who you vote/vouch for
+    mapping(address => VotingPair[]) public recommenders; // users who vote/vouch for you
 
     //stores the registered world ID holders ---check
     mapping(uint => bool) public worldIDs;
