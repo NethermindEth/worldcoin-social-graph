@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "https://github.com/abdk-consulting/abdk-libraries-solidity/blob/master/ABDKMath64x64.sol";
+import "../../lib/abdk-libraries-solidity/ABDKMath64x64.sol";
 
 contract ExponentialCalculator {
     function inversePower(uint256 x) public pure returns (uint) {

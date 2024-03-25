@@ -26,6 +26,8 @@ contract Contract {
 	/// @dev Whether a nullifier hash has been used already. Used to guarantee an action is only performed once by a single person
 	mapping(uint256 => bool) internal nullifierHashes;
 
+	event IdentityVerified(uint256 nullifierHash);
+
 	/// @param _worldId The WorldID instance that will verify the proofs
 	/// @param _appId The World ID app ID
 	/// @param _actionId The World ID action ID
@@ -58,5 +60,6 @@ contract Contract {
 
 		// Finally, execute your logic here, for example issue a token, NFT, etc...
 		// Make sure to emit some kind of event afterwards!
+		emit IdentityVerified(nullifierHash);
 	}
 }
