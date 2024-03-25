@@ -81,6 +81,7 @@ contract Voting is Worldcoin {
     }
 
     function penalise(uint userID) public isRegistered(msg.sender){
+        require(users[msg.sender].status == 2, "must be candidate");
         // Check that userID is recommender of sender
         // position of recommender in sender's recommenders lists
         (bool isRec, uint position) = getRecommender(userID, msg.sender);
