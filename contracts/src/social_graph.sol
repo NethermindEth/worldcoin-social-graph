@@ -12,7 +12,7 @@ contract Worldcoin {
 
     struct User{
         uint uid;
-        bytes32 name;
+        string name;
         //two categories of Users - those who are World ID Holders 
         //and those who are candidates
         bool isWorldIDHolder;
@@ -46,7 +46,7 @@ contract Worldcoin {
     // map takes epoch to corresponding weight assigned in that epoch
     mapping (address => mapping (uint => uint) epochWeights) user_epoch_weights;
     
-    uint internal id = 0;
+    uint internal id = 1;
     //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
     uint internal x;
     // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a candidate becomes verified
@@ -54,14 +54,14 @@ contract Worldcoin {
     // parameter that determines the rewards per epoch to be shared
     uint internal c;
     //stores candidates and world Id holders
-    mapping(address => User) public users;
-    mapping(uint => address) public userAddress;
+    mapping(address => User) internal users;
+    mapping(uint => address) internal userAddress;
 
-    mapping(address => VotingPair[]) public recommendees; // users who you vote/vouch for
-    mapping(address => VotingPair[]) public recommenders; // users who vote/vouch for you
+    mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for
+    mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you
 
-    //stores the registered world ID holders ---check
-    mapping(uint => bool) public worldIDs;
+    //stores the registered world ID holders
+    mapping(uint => bool) internal worldIDs;
 
     // Modifier to check if a user is registered
     modifier isRegistered(address _user) {

@@ -8,7 +8,7 @@ contract Register is Worldcoin {
     // Function to register an account as a World ID holder
     function registerAsWorldIDHolder(
         uint _worldID, 
-        bytes32 _name,
+        string calldata _name,
         Contract _contract,
         address signal, 
         uint256 root, 
@@ -30,7 +30,7 @@ contract Register is Worldcoin {
     }
     
     // Function to register an account as a Candidate
-    function registerAsCandidate(bytes32 _name) external {
+    function registerAsCandidate(string calldata _name) external {
         require(!users[msg.sender].isRegistered, "User is already registered");
         // compute current epoch
         uint c_epoch = (block.number/50064) + 1;
