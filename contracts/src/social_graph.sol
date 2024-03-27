@@ -47,12 +47,12 @@ contract Worldcoin {
     mapping (address => mapping (uint => uint) epochWeights) user_epoch_weights;
     
     uint internal id = 1;
-    //x is the minimum number of Verified users needed to collude in order to create fake Verified identities
-    uint internal x;
+    //x is the minimum power of Verified users needed in order to create fake Verified identities
+    uint internal x = 600;
     // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a candidate becomes verified
-    uint internal a;
+    uint internal a = 60;
     // parameter that determines the rewards per epoch to be shared
-    uint internal c;
+    uint internal c = 140000;
     //stores candidates and world Id holders
     mapping(address => User) internal users;
     mapping(uint => address) internal userAddress;
