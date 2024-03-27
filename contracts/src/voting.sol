@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
 pragma solidity >=0.8.2 <0.9.0;
-import "./social_graph.sol";
+import { Worldcoin } from "./social_graph.sol";
+import { Contract } from "./Contract.sol";
 import {ExponentialCalculator} from "./helpers/exponential.sol";
 
 contract Voting is Worldcoin {
@@ -10,6 +11,41 @@ contract Voting is Worldcoin {
         e = ExponentialCalculator(_address);
     }
 
+    // Function to register an account as a World ID holder
+    function registerAsWorldIDHolder(
+        uint _worldID,
+        string calldata _name,
+        Contract _contract,
+        address signal, 
+        uint256 root, 
+        uint256 nullifierHash, 
+        uint256[8] calldata proof
+        ) public {
+        require(!users[msg.sender].isRegistered, "User is already registered");
+        // Perform checks to verify World ID
+        _contract.verifyAndExecute(signal, root, nullifierHash, proof);
+        // checks if world ID is already registered
+        require(!worldIDs[_worldID], "This World ID is already registered");
+        worldIDs[_worldID] = true;
+        // compute current epoch
+        uint c_epoch = (block.number/50064) + 1;
+        // add new user to user map
+        users[msg.sender] = User(id, _name, true, true, _worldID, 100, 0, 0, 0, c_epoch - 1);
+        user_epoch_weights[msg.sender][c_epoch] = 0;
+        userAddress[id++] = msg.sender;
+    }
+    
+    // Function to register an account as a Candidate
+    function registerAsCandidate(string calldata _name) external {
+        require(!users[msg.sender].isRegistered, "User is already registered");
+        // compute current epoch
+        uint c_epoch = (block.number/50064) + 1;
+        // add user to user map
+        users[msg.sender] = User(id, _name, false, true, 0, 0, 0, 2, 0, c_epoch - 1);
+        userAddress[id++] = msg.sender;
+    }
+
+    //Function to vote for a candidate
     function recommendCandidate(VotingPair[] memory _votes) external canVote(msg.sender) {
         uint sumOfWeights=0;
         // Iterate through the array of votes
@@ -23,6 +59,7 @@ contract Voting is Worldcoin {
             sumOfWeights+=_weight;
         }
 
+        //Checks if voter has enough voting power left to vote
         require(users[msg.sender].vhot >= sumOfWeights, "Do not have enough voting power left");
         users[msg.sender].vhot -= sumOfWeights;
         users[msg.sender].vcold += sumOfWeights;
@@ -38,6 +75,7 @@ contract Voting is Worldcoin {
         }  
     }
 
+    //Function called by candidate to update his/her status
     function updateStatusVerified() public isRegistered(msg.sender) {
         // msg.sender should be a candidate
         require(users[msg.sender].status == 2,"Not eligible to update Status");
@@ -70,6 +108,7 @@ contract Voting is Worldcoin {
         }
     }
 
+    //Function to return information about a particular recommender
     function getRecommender(uint userID, address _sender) internal view returns (bool isRec, uint pos) {
         // Will loop through recommenders looking for userID
         for (uint i = 0; i < recommenders[_sender].length; i++) {
@@ -81,6 +120,7 @@ contract Voting is Worldcoin {
         return (false, 0);
     }
 
+    //Function called by candidates to penalise their recommenders
     function penalise(uint userID) public isRegistered(msg.sender){
         require(users[msg.sender].status == 2, "must be candidate");
         // Check that userID is recommender of sender
@@ -89,16 +129,13 @@ contract Voting is Worldcoin {
         require(isRec, "UserID is not a recommender");
         // set t to be weight
         uint t = recommenders[msg.sender][position].weight;
-        // reduce vhot or vcold of userID
-        if (users[msg.sender].status == 1) {
-            users[userAddress[userID]].vhot -= (a * t) / 100;
-        } else {
-            users[userAddress[userID]].vcold -= t;
-            // remove userID from sender's recommender list
-            delete recommenders[msg.sender][position];
-        }
+        // reduce vcold of userID
+        users[userAddress[userID]].vcold -= t;
+        // remove userID from sender's recommender list
+        delete recommenders[msg.sender][position];
     }
 
+    //Function called by verified identities/WorldID holders to claim rewards after voting
     function claimReward() public isRegistered(msg.sender) {
         uint c_epoch = (block.number/50064) + 1;
         uint l_epoch = users[msg.sender].lepoch;
@@ -114,4 +151,5 @@ contract Voting is Worldcoin {
         }
         users[msg.sender].lepoch = c_epoch - 1;
     }
+
 }
