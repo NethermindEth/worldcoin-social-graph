@@ -18,6 +18,7 @@ contract Voting is Worldcoin {
             uint _userID = _votes[i].userID;
             //exits if even one candidate user ID is invalid
             require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
+            require(users[userAddress[_userID]].status == 2, "You can only vote for a candidate");
             uint _weight = _votes[i].weight;
             sumOfWeights+=_weight;
         }
