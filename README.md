@@ -39,6 +39,7 @@ pnpm i
 ```
 
 Set up your environment variables in the `.env` file. You will need to set the following variables:
+
 - `NEXT_PUBLIC_APP_ID`: The app ID as configured in the [Worldcoin Developer Portal](https://developer.worldcoin.org).
 - `NEXT_PUBLIC_ACTION`: The action ID as configured in the Worldcoin Developer Portal.
 - `NEXT_PUBLIC_WALLETCONNECT_ID`: Your WalletConnect ID.
@@ -55,6 +56,7 @@ The Contract ABI will be automatically re-generated and saved to `src/abi/Contra
 ### Iterating
 
 After making changes to the contract, you should:
+
 - re-run the `forge create` command from above
 - replace the `NEXT_PUBLIC_CONTRACT_ADDRESS` environment variable with the new contract address
 - if your contract ABI has changed, restart the local web server
