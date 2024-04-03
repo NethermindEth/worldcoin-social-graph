@@ -3,12 +3,27 @@
 pragma solidity >=0.8.2 <0.9.0;
 import { Worldcoin } from "./social_graph.sol";
 import { Contract } from "./Contract.sol";
-import {ExponentialCalculator} from "./helpers/exponential.sol";
+import "../../lib/abdk-libraries-solidity/ABDKMath64x64.sol";
 
 contract Voting is Worldcoin {
-    ExponentialCalculator e;
-    constructor(address _address) {
-        e = ExponentialCalculator(_address);
+    function inversePower(uint256 x) public pure returns (uint) {
+        // Represent the percentage as a fixed-point number.
+        int128 percentage = ABDKMath64x64.divu(x, 100);
+
+        // Calculate e^(percentage)
+        int128 result = ABDKMath64x64.exp(percentage);
+
+        // Multiply by 10^5 to keep 5 decimal places
+        result = ABDKMath64x64.mul(result, ABDKMath64x64.fromUInt(10**5));
+
+        // Invert the exponential as required
+        result = ABDKMath64x64.div(ABDKMath64x64.fromUInt(10**5), result); 
+
+        // Multiply by 10^5 to keep 5 decimal places
+        result = ABDKMath64x64.mul(result, ABDKMath64x64.fromUInt(10**5));
+
+        // Convert the fixed-point result to a uint and return it.
+        return ABDKMath64x64.toUInt(result);
     }
 
     // Function to register an account as a World ID holder
@@ -87,7 +102,7 @@ contract Voting is Worldcoin {
         require(y > x, "User should have higher power than threshold");
         //val refers to the voting power a user has
         // val currently has precision of 5 decimals
-        uint val = 10**5 - e.inversePower(y/2);
+        uint val = 10**5 - inversePower(y/2);
         
         users[msg.sender].status = 1;
         users[msg.sender].vhot = val/10**3;
