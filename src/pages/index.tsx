@@ -21,8 +21,11 @@ export default function Home() {
 				address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
 				account: account.address!,
 				abi,
-				functionName: 'verifyAndExecute',
+				functionName: 'registerAsWorldIDHolder',
 				args: [
+					BigInt("123"), // uint _worldID
+					"name",// string calldata _name,
+					// Contract _contract,
 					account.address!,
 					BigInt(proof!.merkle_root),
 					BigInt(proof!.nullifier_hash),

@@ -3,12 +3,17 @@
 pragma solidity >=0.8.2 <0.9.0;
 import { Worldcoin } from "./social_graph.sol";
 import { Contract } from "./Contract.sol";
-import "../../lib/abdk-libraries-solidity/ABDKMath64x64.sol";
+import "../lib/abdk-libraries-solidity/ABDKMath64x64.sol";
 
 contract Voting is Worldcoin {
-    function inversePower(uint256 x) public pure returns (uint) {
+    Contract worldIDContract;
+    constructor (Contract _worldIDContract) {
+        worldIDContract = _worldIDContract;
+    }
+
+    function inversePower(uint256 input) public pure returns (uint) {
         // Represent the percentage as a fixed-point number.
-        int128 percentage = ABDKMath64x64.divu(x, 100);
+        int128 percentage = ABDKMath64x64.divu(input, 100);
 
         // Calculate e^(percentage)
         int128 result = ABDKMath64x64.exp(percentage);
@@ -30,7 +35,7 @@ contract Voting is Worldcoin {
     function registerAsWorldIDHolder(
         uint _worldID,
         string calldata _name,
-        Contract _contract,
+        // Contract _contract,
         address signal, 
         uint256 root, 
         uint256 nullifierHash, 
@@ -38,7 +43,7 @@ contract Voting is Worldcoin {
         ) public {
         require(!users[msg.sender].isRegistered, "User is already registered");
         // Perform checks to verify World ID
-        _contract.verifyAndExecute(signal, root, nullifierHash, proof);
+        worldIDContract.verifyAndExecute(signal, root, nullifierHash, proof);
         // checks if world ID is already registered
         require(!worldIDs[_worldID], "This World ID is already registered");
         worldIDs[_worldID] = true;

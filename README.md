@@ -26,6 +26,10 @@ cd contracts
 forge build -C src/ --extra-output-files abi -o ../src/abi/
 
 forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Contract.sol:Contract --constructor-args 0x11cA3127182f7583EfC416a8771BD4d11Fae4334 app_staging_3cd5392cb0348670bcc22377e6090a68 verify-worldid
+# 0x64386BC53c213F23C6960d3e080139A0f9Ef1733 - used in voting constructor args
+
+forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/voting.sol:Voting --constructor-args 0x64386BC53c213F23C6960d3e080139A0f9Ef1733
+# 0x4A65b9d13908487A1654be48e6aa9Bc701735910 - used in .env
 ```
 
 Note the `Deployed to:` address from the output.
