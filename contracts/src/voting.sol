@@ -172,4 +172,12 @@ contract Voting is Worldcoin {
         users[msg.sender].lepoch = c_epoch - 1;
     }
 
+    function getListOfRecommenders(uint _userID) public view returns (VotingPair[] memory){
+        return recommenders[userAddress[_userID]];
+    }
+
+    function getListOfRecommendees(uint _userID) public view returns (VotingPair[] memory){
+        return recommendees[userAddress[_userID]];
+    }
+
 }
