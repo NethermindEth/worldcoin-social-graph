@@ -15,21 +15,23 @@ Ensure you have installed [Foundry](https://book.getfoundry.sh/getting-started/i
 Start a local node forked from Optimism Sepolia, replacing `$YOUR_API_KEY` with your Alchemy API key:
 
 ```bash
-# leave this running in the background
+# leave this running in the background (I have provided my alchemy api key for simplicity)
 anvil -f https://opt-sepolia.g.alchemy.com/v2/L-B1Qjb5675fo6DJsblLYYjlfrvCPXY9
 ```
 
-In another shell, deploy the contract, replacing `$WORLD_ID_ROUTER` with the [World ID Router address](https://docs.worldcoin.org/reference/address-book) for your selected chain, `$NEXT_PUBLIC_APP_ID` with the app ID as configured in the [Worldcoin Developer Portal](https://developer.worldcoin.org), and `$NEXT_PUBLIC_ACTION` with the action ID as configured in the Worldcoin Developer Portal:
+In another shell, deploy the contract, replacing `$WORLD_ID_ROUTER` with the [World ID Router address](https://docs.worldcoin.org/reference/address-book) for your selected chain, `$NEXT_PUBLIC_APP_ID` with the app ID as configured in the [Worldcoin Developer Portal](https://developer.worldcoin.org), and `$NEXT_PUBLIC_ACTION` with the action ID as configured in the Worldcoin Developer Portal: **These have been filled out for you, just run the code below:**
 
 ```bash
 cd contracts
+
+# Will build the contracts and output their abi in src/abi
 forge build -C src/ --extra-output-files abi -o ../src/abi/
 
+# Pass deployed to address as constructor arg of voting contract created below
 forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Contract.sol:Contract --constructor-args 0x11cA3127182f7583EfC416a8771BD4d11Fae4334 app_staging_3cd5392cb0348670bcc22377e6090a68 verify-worldid
-# 0x64386BC53c213F23C6960d3e080139A0f9Ef1733 - used in voting constructor args
 
-forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/voting.sol:Voting --constructor-args 0x64386BC53c213F23C6960d3e080139A0f9Ef1733
-# 0x4A65b9d13908487A1654be48e6aa9Bc701735910 - used in .env
+# Replace NEXT_PUBLIC_CONTRACT_ADDRESS in .env with deployed to address
+forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/voting.sol:Voting --constructor-args 0x8729c0238b265BaCF6fE397E8309897BB5c40473
 ```
 
 Note the `Deployed to:` address from the output.
@@ -43,6 +45,8 @@ pnpm i
 ```
 
 Set up your environment variables in the `.env` file. You will need to set the following variables:
+
+**These have been configured too, simply change the `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env`**
 
 - `NEXT_PUBLIC_APP_ID`: The app ID as configured in the [Worldcoin Developer Portal](https://developer.worldcoin.org).
 - `NEXT_PUBLIC_ACTION`: The action ID as configured in the Worldcoin Developer Portal.
