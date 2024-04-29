@@ -31,7 +31,7 @@ forge build -C src/ --extra-output-files abi -o ../src/abi/
 forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/Contract.sol:Contract --constructor-args 0x11cA3127182f7583EfC416a8771BD4d11Fae4334 app_staging_3cd5392cb0348670bcc22377e6090a68 verify-worldid
 
 # Replace NEXT_PUBLIC_CONTRACT_ADDRESS in .env with deployed to address
-forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/voting.sol:Voting --constructor-args 0x8729c0238b265BaCF6fE397E8309897BB5c40473
+forge create --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 src/voting.sol:Voting --constructor-args 0x97915c43511f8cB4Fbe7Ea03B96EEe940eC4AF12
 ```
 
 Note the `Deployed to:` address from the output.
@@ -79,3 +79,31 @@ You'll need to import the private keys on the local testnet into your wallet use
 When connecting your wallet to the local development environment, you will be prompted to add the network to your wallet.
 
 Use the [Worldcoin Simulator](https://simulator.worldcoin.org) in place of World App to scan the IDKit QR codes and generate the zero-knowledge proofs.
+
+### E2E testing
+
+This is a walkthrough to show how to sign up and update one user to verified. For a full run through check `e2e.sh` which will run this in its entirety.
+
+In a separate terminal follow these steps:
+
+Step 1: Register as candidate: *this is the candidate to be updated Take a note of the userID you will need it in step 3*
+
+```bash
+cast send $VOTINGCONTRACT "registerAsCandidate(string _name)" $NAME --private-key $PRIVATEKEY
+```
+
+Step 2a: Register as worldID holder: *(for testing should perform multiple times to check update status verified)*
+
+Use the react app to register each worldID user to the contract.
+
+Step 2b: Vote for the candidate: *(we recommend voting with 100% of the voting power to fast track results)*
+
+```bash
+cast send $VOTINGCONTRACT "recommendCandidate((uint, uint)[])" "[($USERID, 100)]" --private-key $PRIVATEKEY
+```
+
+Step 3: Update status to verified of candidate user
+
+```bash
+cast send $VOTINGCONTRACT "updateStatusVerified()" --private-key $CANDIDATEPRIVATEKEY
+```
