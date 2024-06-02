@@ -31,6 +31,10 @@ contract Voting is Worldcoin {
         return ABDKMath64x64.toUInt(result);
     }
 
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a <= b ? a : b;
+    }
+
     // Function to register an account as a World ID holder
     function registerAsWorldIDHolder(
         uint _worldID,
@@ -75,8 +79,12 @@ contract Voting is Worldcoin {
             //exits if even one candidate user ID is invalid
             require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
             require(users[userAddress[_userID]].status == 2, "You can only vote for a candidate");
+            require(_votes[i].weight >= 0);
+            _votes[i].weight = min(1000 - assignedWeight[userAddress[_userID]], _votes[i].weight);
             uint _weight = _votes[i].weight;
+            require(_weight >= 0);
             sumOfWeights+=_weight;
+            assignedWeight[userAddress[_userID]]+=_weight;
         }
 
         //Checks if voter has enough voting power left to vote

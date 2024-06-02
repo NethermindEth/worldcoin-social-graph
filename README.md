@@ -121,8 +121,22 @@ cast send $VOTINGCONTRACT "updateStatusVerified()" --private-key $CANDIDATEPRIVA
 
 ### References and useful links
 
-- Worldcoin - https://docs.worldcoin.org/
-- Worldcoin Developer Portal - https://developer.worldcoin.org
-- The template provided by Worlcoin for WorldID On-chain Integration - https://github.com/worldcoin/world-id-onchain-template.
-- Worldcoin simulator - https://simulator.worldcoin.org/id/0x18310f83
-- ABDKMath64x64 library - https://github.com/abdk-consulting/abdk-libraries-solidity/blob/master/LICENSE.md
+1. Worldcoin: https://docs.worldcoin.org/
+2. Worldcoin Developer Portal: https://developer.worldcoin.org
+3. The template provided by Worlcoin for WorldID On-chain Integration: used as is and integrated with on-chain components. Link: https://github.com/worldcoin/world-id-onchain-template.
+4. Worldcoin simulator: used to register WorldID holders during testing. Link: https://simulator.worldcoin.org/id/0x18310f83
+5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK Consulting. Link: https://github.com/abdk-consulting/abdk-libraries-solidity
+
+```bash
+Copyright (c) 2019, ABDK Consulting
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+All advertising materials mentioning features or use of this software must display the following acknowledgement: This product includes software developed by ABDK Consulting.
+Neither the name of ABDK Consulting nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY ABDK CONSULTING ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ABDK CONSULTING BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
