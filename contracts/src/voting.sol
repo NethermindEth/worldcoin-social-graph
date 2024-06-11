@@ -57,7 +57,6 @@ contract Voting is Worldcoin {
         // add new user to user map
         users[msg.sender] = User(_name, true, true, 100, 0, Status.WorldIDHolder, 0, c_epoch - 1);
         user_epoch_weights[msg.sender][c_epoch] = 0;
-        userAddress[id++] = msg.sender;
     }
 
     // Function to register an account as a Candidate
@@ -67,7 +66,6 @@ contract Voting is Worldcoin {
         uint256 c_epoch = calculateCurrentEpoch();
         // add user to user map
         users[msg.sender] = User(_name, false, true, 0, 0, Status.Candidate, 0, c_epoch - 1);
-        userAddress[id++] = msg.sender;
     }
 
     //Function to vote for a candidate
@@ -75,13 +73,15 @@ contract Voting is Worldcoin {
         uint256 sumOfWeights = 0;
         // Iterate through the array of votes
         for (uint256 i = 0; i < _votes.length; i++) {
-            // Access each pair (userID, weight)
-            uint256 _userID = _votes[i].userID;
-            //exits if even one candidate user ID is invalid
-            require(users[userAddress[_userID]].isRegistered, "Candidate not registered");
-            require(users[userAddress[_userID]].status == Status.Candidate, "You can only vote for a candidate");
+            // Access each pair (userAddress, weight)
+            address _userAddress = _votes[i].userAddress;
+            //exits if even one candidate userAddress is invalid
+            require(users[_userAddress].isRegistered, "Candidate not registered");
+            require(users[_userAddress].status == Status.Candidate, "You can only vote for a candidate");
+            _votes[i].weight = min(1000 - assignedWeight[_userAddress], _votes[i].weight);
             uint256 _weight = _votes[i].weight;
             sumOfWeights += _weight;
+            assignedWeight[_userAddress] += _weight;
         }
 
         //Checks if voter has enough voting power left to vote
@@ -90,12 +90,10 @@ contract Voting is Worldcoin {
         users[msg.sender].vcold += sumOfWeights;
 
         for (uint256 i = 0; i < _votes.length; i++) {
-            uint256 _userID = _votes[i].userID;
+            address addOfRecommendedCandidate = _votes[i].userAddress;
             uint256 _weight = _votes[i].weight;
-            uint256 _uidOfSender = users[msg.sender].uid;
-            address addOfRecommendedCandidate = userAddress[_userID];
             recommendees[msg.sender].push(_votes[i]);
-            recommenders[addOfRecommendedCandidate].push(VotingPair(_uidOfSender, _weight));
+            recommenders[addOfRecommendedCandidate].push(VotingPair(msg.sender, _weight));
         }
     }
 
@@ -119,23 +117,26 @@ contract Voting is Worldcoin {
         uint256 c_epoch = calculateCurrentEpoch();
 
         for (uint256 i = 0; i < recommenders[msg.sender].length; i++) {
-            uint256 _userID = recommenders[msg.sender][i].userID;
             uint256 _weight = recommenders[msg.sender][i].weight;
-            address addOfRecommenderCandidate = userAddress[_userID];
+            address addressOfRecommender = recommenders[msg.sender][i].userAddress;
 
-            users[addOfRecommenderCandidate].vhot += (a * _weight) / 100;
-            users[addOfRecommenderCandidate].vcold -= _weight;
+            users[addressOfRecommender].vhot += (a * _weight) / 100;
+            users[addressOfRecommender].vcold -= _weight;
 
-            user_epoch_weights[addOfRecommenderCandidate][c_epoch] += _weight;
+            user_epoch_weights[addressOfRecommender][c_epoch] += _weight;
             rewards_per_epoch[c_epoch] += _weight;
         }
     }
 
     //Function to return information about a particular recommender
-    function getRecommenderPosition(uint256 userID, address _sender) internal view returns (bool isRec, uint256 pos) {
-        // Will loop through recommenders looking for userID
+    function getRecommenderPosition(address _userAddress, address _sender)
+        internal
+        view
+        returns (bool isRec, uint256 pos)
+    {
+        // Will loop through recommenders searching for a particular user
         for (uint256 i = 0; i < recommenders[_sender].length; i++) {
-            if (recommenders[_sender][i].userID == userID) {
+            if (recommenders[_sender][i].userAddress == _userAddress) {
                 return (true, i);
             }
         }
@@ -144,32 +145,32 @@ contract Voting is Worldcoin {
     }
 
     //Function to return information about a particular recommendee
-    function getRecommendeePosition(uint256 userID, address _sender) internal view returns (bool isRec, uint256 pos) {
-        // Will loop through recommenders looking for userID
-        for (uint256 i = 0; i < recommendees[userAddress[userID]].length; i++) {
-            if (recommendees[userAddress[userID]][i].userID == userID) {
-                return (true, i);
+    function getRecommendeePosition(address _userAddress, address _sender) internal view returns (uint256 pos) {
+        // Will loop through recommendees searching for a particular user
+        for (uint256 i = 0; i < recommendees[_userAddress].length; i++) {
+            if (recommendees[_userAddress][i].userAddress == _sender) {
+                return i;
             }
         }
-        // If no recommender is found, returns false
-        return (false, 0);
     }
 
     //Function called by candidates to penalise their recommenders
-    function penalise(uint256 userID) public isRegistered(msg.sender) {
+    function penalise(address _userAddress) public isRegistered(msg.sender) {
         require(users[msg.sender].status == Status.Candidate, "User must be candidate");
-        // Check that userID is recommender of sender
+        // Check that userAddress is recommender of sender
         // position of recommender in sender's recommenders lists
-        (bool isRecommender, uint256 position1) = getRecommenderPosition(userID, msg.sender);
-        (bool isRecommendee, uint256 position2) = getRecommendeePosition(userID, msg.sender);
-        require(isRecommender, "UserID is not a recommender");
+        (bool isRecommender, uint256 position1) = getRecommenderPosition(_userAddress, msg.sender);
+        require(isRecommender, "Given user is not a recommender");
+        uint256 position2 = getRecommendeePosition(_userAddress, msg.sender);
         // set t to be weight
         uint256 t = recommenders[msg.sender][position1].weight;
-        // reduce vcold of userID
-        users[userAddress[userID]].vcold -= t;
-        // remove userID from sender's recommender(users who vote for you) and recommendee(users who you vote for) list
-        delete recommenders[msg.sender][position1];
-        delete recommendees[userAddress[userID]][position2];
+        // reduce vcold of user
+        users[_userAddress].vcold -= t;
+        // remove user from sender's recommender(users who vote for you) and recommendee(users who you vote for) list
+        recommenders[msg.sender][position1] = recommenders[msg.sender][recommenders[msg.sender].length - 1];
+        recommenders[msg.sender].pop();
+        recommendees[_userAddress][position2] = recommenders[_userAddress][recommenders[_userAddress].length - 1];
+        recommendees[_userAddress].pop();
     }
 
     //Function called by verified identities/WorldID holders to claim rewards after voting
@@ -185,11 +186,11 @@ contract Voting is Worldcoin {
         }
     }
 
-    function getListOfRecommenders(uint256 _userID) public view returns (VotingPair[] memory) {
-        return recommenders[userAddress[_userID]];
+    function getListOfRecommenders(address _userAddress) public view returns (VotingPair[] memory) {
+        return recommenders[_userAddress];
     }
 
-    function getListOfRecommendees(uint256 _userID) public view returns (VotingPair[] memory) {
-        return recommendees[userAddress[_userID]];
+    function getListOfRecommendees(address _userAddress) public view returns (VotingPair[] memory) {
+        return recommendees[_userAddress];
     }
 }

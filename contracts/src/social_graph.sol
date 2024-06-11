@@ -4,7 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 
 contract Worldcoin {
     struct VotingPair {
-        uint256 userID;
+        address userAddress;
         uint256 weight;
     }
 
@@ -37,10 +37,9 @@ contract Worldcoin {
     mapping(uint256 => uint256) rewards_per_epoch;
 
     // counting weights per epoch
-    // for one user, the map takes epoch to corresponding weight that user has assigned in that epoch
+    // for one user, the map takes epoch to corresponding weight that user has assigned to users that become verified in that epoch
     mapping(address => mapping(uint256 => uint256) epochWeights) user_epoch_weights;
 
-    uint256 internal id = 1;
     //x is the minimum power of Verified users needed in order to create fake Verified identities
     uint256 internal x = 600;
     // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a candidate becomes verified
@@ -49,13 +48,11 @@ contract Worldcoin {
     uint256 internal c = 140000;
     //stores candidates and world Id holders
     mapping(address => User) internal users;
-    mapping(uint256 => address) internal userAddress;
+    //sum of weights allocated to a candidate user
+    mapping(address => uint256) assignedWeight;
 
     mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for
     mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you
-
-    //stores the registered world ID holders
-    mapping(uint256 => bool) internal worldIDs;
 
     // Modifier to check if a user is registered
     modifier isRegistered(address _user) {
