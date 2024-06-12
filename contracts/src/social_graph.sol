@@ -34,11 +34,11 @@ contract Worldcoin {
 
     // total amount of voting power allocated to the candidates
     //maps epoch to sum
-    mapping(uint256 => uint256) rewards_per_epoch;
+    mapping(uint256 => uint256) public rewards_per_epoch;
 
     // counting weights per epoch
     // for one user, the map takes epoch to corresponding weight that user has assigned to users that become verified in that epoch
-    mapping(address => mapping(uint256 => uint256) epochWeights) user_epoch_weights;
+    mapping(address => mapping(uint256 => uint256) epochWeights) public user_epoch_weights;
 
     //x is the minimum power of Verified users needed in order to create fake Verified identities
     uint256 internal x = 600;
@@ -49,7 +49,7 @@ contract Worldcoin {
     //stores candidates and world Id holders
     mapping(address => User) internal users;
     //sum of weights allocated to a candidate user
-    mapping(address => uint256) assignedWeight;
+    mapping(address => uint256) public assignedWeight;
 
     mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for
     mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you

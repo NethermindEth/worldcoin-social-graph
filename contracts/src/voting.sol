@@ -7,11 +7,11 @@ import {verifyWorldID} from "./verifyWorldID.sol";
 import "../lib/abdk-libraries-solidity/ABDKMath64x64.sol";
 
 contract Voting is Worldcoin {
-    verifyWorldID worldIDContract;
+    // verifyWorldID worldIDContract;
 
-    constructor(verifyWorldID _worldIDContract) {
-        worldIDContract = _worldIDContract;
-    }
+    // constructor(verifyWorldID _worldIDContract) {
+    //     worldIDContract = _worldIDContract;
+    // }
 
     function inversePower(uint256 input) public pure returns (uint256) {
         // Represent the percentage as a fixed-point number.
@@ -43,15 +43,16 @@ contract Voting is Worldcoin {
 
     // Function to register an account as a World ID holder
     function registerAsWorldIDHolder(
-        string calldata _name,
-        address signal,
-        uint256 root,
-        uint256 nullifierHash,
-        uint256[8] calldata proof
+        string calldata _name
+        // string calldata _name,
+        // address signal,
+        // uint256 root,
+        // uint256 nullifierHash,
+        // uint256[8] calldata proof
     ) public {
         require(!users[msg.sender].isRegistered, "User is already registered");
         // Perform checks to verify World ID
-        worldIDContract.verifyAndExecute(signal, root, nullifierHash, proof);
+        // worldIDContract.verifyAndExecute(signal, root, nullifierHash, proof);
         // compute current epoch
         uint256 c_epoch = calculateCurrentEpoch();
         // add new user to user map
@@ -169,7 +170,7 @@ contract Voting is Worldcoin {
         // remove user from sender's recommender(users who vote for you) and recommendee(users who you vote for) list
         recommenders[msg.sender][position1] = recommenders[msg.sender][recommenders[msg.sender].length - 1];
         recommenders[msg.sender].pop();
-        recommendees[_userAddress][position2] = recommenders[_userAddress][recommenders[_userAddress].length - 1];
+        recommendees[_userAddress][position2] = recommendees[_userAddress][recommendees[_userAddress].length - 1];
         recommendees[_userAddress].pop();
     }
 
@@ -177,7 +178,7 @@ contract Voting is Worldcoin {
     function claimReward(uint256[] memory epochs) public isRegistered(msg.sender) {
         uint256 c_epoch = calculateCurrentEpoch();
         for (uint256 i = 0; i < epochs.length; i++) {
-            if (epochs[i] < c_epoch) {
+            if (epochs[i] < c_epoch || rewards_per_epoch[epochs[i]] != 0) {
                 // increase totalReward of the sender in users map
                 users[msg.sender].totalReward +=
                     c * (user_epoch_weights[msg.sender][epochs[i]] / rewards_per_epoch[epochs[i]]);
@@ -185,6 +186,11 @@ contract Voting is Worldcoin {
             }
         }
     }
+
+    function getUser(address user_addr) public view returns (User memory) {
+        return users[user_addr];
+    }
+
 
     function getListOfRecommenders(address _userAddress) public view returns (VotingPair[] memory) {
         return recommenders[_userAddress];
