@@ -38,7 +38,7 @@ contract Worldcoin {
 
     // counting weights per epoch
     // for one user, the map takes epoch to corresponding weight that user has assigned to users that become verified in that epoch
-    mapping(address => mapping(uint256 => uint256) epochWeights) public user_epoch_weights;
+    mapping(address => mapping(uint256 => uint256) epochWeights) user_epoch_weights;
 
     //x is the minimum power of Verified users needed in order to create fake Verified identities
     uint256 internal x = 600;

@@ -470,16 +470,9 @@ contract SocialGraphTest is Test {
         assertEq(verified_candidate.vcold, 0, "Did not update status");
     }
 
-
-    // TODO: test claim function
-    //      1. user is verified -> wID claims back power = PASS
-    //      2. user is not verified -> wID claims back power = FAIL
-
-    function skip_test_claim_candidate_is_verified() public {
+    function test_claim_candidate_is_verified() public {
         assertTrue(register_candidate_test("Andy", address(this)));
-        
-        Worldcoin.User memory candidate = voting.getUser(address(this));
-        
+
         // sign up 1
         startHoax(address(1234));
         assertTrue(register_worldID_test("Jim", address(1234)), "Could not register worldID");
@@ -595,28 +588,160 @@ contract SocialGraphTest is Test {
         assertEq(voting.getUser(address(6789)).totalReward, 0, "Must have vhot = alpha * 100");
         assertEq(voting.getUser(address(7890)).totalReward, 0, "Must have vhot = alpha * 100");
 
-
-        // TODO: FIX HOW THIS WORKS with the new claim rewards
-        // calculate epochs and send them
+        vm.roll(200000);
 
         uint256 curr_epoch = (block.number / 50064) + 1;
         uint256 lepoch = voting.getUser(address(1234)).lepoch;
-        emit log_uint(lepoch);
-        emit log_uint(curr_epoch);
 
-        epochs.push(1);
+        for (uint256 epoch = lepoch+1; epoch < curr_epoch; epoch++) {
+            epochs.push(epoch);
+        }
 
-        emit log_uint(voting.rewards_per_epoch(1));
+        uint len = epochs.length;
 
-        vm.roll(100000);
-
-        startHoax(address(1234));
+        vm.prank(address(1234));
         voting.claimReward(epochs);
-        assertEq(voting.getUser(address(1234)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(1234)).totalReward, 20000, "Must have vhot = alpha * 100");
 
-        epochs.pop();
+        for (uint256 i = 0; i < len; i++) {
+            epochs.pop();
+        }
         assertEq(epochs.length, 0, "epochs must return to original length");
     } 
+
+        function test_claim_candidate_is_not_verified() public {
+        assertTrue(register_candidate_test("Andy", address(this)));
+
+        // sign up 1
+        startHoax(address(1234));
+        assertTrue(register_worldID_test("Jim", address(1234)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(1234)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+        
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+
+        // sign up 2
+        startHoax(address(2345));
+        assertTrue(register_worldID_test("Pam", address(2345)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(2345)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+
+        // sign up 3
+        startHoax(address(3456));
+        assertTrue(register_worldID_test("Michael", address(3456)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(3456)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+
+        // sign up 4
+        startHoax(address(4567));
+        assertTrue(register_worldID_test("Dwight", address(4567)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(4567)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+        
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+
+        // sign up 5
+        startHoax(address(5678));
+        assertTrue(register_worldID_test("Ryan", address(5678)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(5678)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+        
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+
+        // sign up 6
+        startHoax(address(6789));
+        assertTrue(register_worldID_test("Kelly", address(6789)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(6789)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+        
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+
+        // sign up 7
+        startHoax(address(7890));
+        assertTrue(register_worldID_test("Toby", address(7890)), "Could not register worldID");
+        vp.push(Worldcoin.VotingPair(address(this), 100));
+        
+        voting.recommendCandidate(vp);
+        assertEq(voting.getUser(address(7890)).vhot, 0, "User must have voted will all voting power");
+        vm.stopPrank();
+
+        // return state to original version
+        vp.pop();
+        assertEq(vp.length, 0, "Voting pair[] pop did not work");
+    
+        // check vhot of wID voters
+        assertEq(voting.getUser(address(1234)).vhot, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(2345)).vhot, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(3456)).vhot, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(4567)).vhot, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(5678)).vhot, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(6789)).vhot, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(7890)).vhot, 0, "Must have vhot = alpha * 100");
+    
+        // check rewards of wID voters
+        assertEq(voting.getUser(address(1234)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(2345)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(3456)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(4567)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(5678)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(6789)).totalReward, 0, "Must have vhot = alpha * 100");
+        assertEq(voting.getUser(address(7890)).totalReward, 0, "Must have vhot = alpha * 100");
+
+        vm.roll(200000);
+
+        uint256 curr_epoch = (block.number / 50064) + 1;
+        uint256 lepoch = voting.getUser(address(1234)).lepoch;
+
+        for (uint256 epoch = lepoch+1; epoch < curr_epoch; epoch++) {
+            epochs.push(epoch);
+        }
+
+        uint len = epochs.length;
+
+        hoax(address(1234));
+        voting.claimReward(epochs);
+        assertEq(voting.getUser(address(1234)).totalReward, 0, "vhot must not change");
+        vm.stopPrank();
+
+        for (uint256 i = 0; i < len; i++) {
+            epochs.pop();
+        }
+        assertEq(epochs.length, 0, "epochs must return to original length");
+    } 
+
 
     function test_penalise_recommender() public {
         assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");

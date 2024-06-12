@@ -178,10 +178,10 @@ contract Voting is Worldcoin {
     function claimReward(uint256[] memory epochs) public isRegistered(msg.sender) {
         uint256 c_epoch = calculateCurrentEpoch();
         for (uint256 i = 0; i < epochs.length; i++) {
-            if (epochs[i] < c_epoch || rewards_per_epoch[epochs[i]] != 0) {
+            if (epochs[i] < c_epoch && rewards_per_epoch[epochs[i]] != 0 && user_epoch_weights[msg.sender][epochs[i]] != 0) {
                 // increase totalReward of the sender in users map
                 users[msg.sender].totalReward +=
-                    c * (user_epoch_weights[msg.sender][epochs[i]] / rewards_per_epoch[epochs[i]]);
+                    (c * user_epoch_weights[msg.sender][epochs[i]]) / rewards_per_epoch[epochs[i]];
                 delete user_epoch_weights[msg.sender][epochs[i]];
             }
         }
@@ -198,5 +198,9 @@ contract Voting is Worldcoin {
 
     function getListOfRecommendees(address _userAddress) public view returns (VotingPair[] memory) {
         return recommendees[_userAddress];
+    }
+
+    function getUserEpochWeights(address user_addr, uint256 epoch) public view returns (uint256) {
+        return user_epoch_weights[user_addr][epoch];
     }
 }
