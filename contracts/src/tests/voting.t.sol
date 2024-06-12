@@ -9,36 +9,47 @@ import {DeployVoting} from "../scripts/voting.s.sol";
 
 import {Test} from "../../lib/forge-std/src/Test.sol";
 
+/// @title Testing for social graph
 contract SocialGraphTest is Test {
     Voting voting;
     Worldcoin.VotingPair[] vp;
     uint256[] epochs;
 
+    /// @notice will create a new voting contract for each test
     function setUp() external {
         DeployVoting dv = new DeployVoting();
         voting = dv.run();
     }
 
+    /// @notice will test the worldID registration function
     function test_worldID_register() public {
         assertTrue(register_worldID_test("Jim", address(this)), "Could not register worldID");
     }
 
+    /// @notice Tests the registration of a candidate.
+    /// @dev This function calls `register_candidate_test` with a sample name and address, and asserts the registration was successful.
     function test_candidate_register() public {
         assertTrue(register_candidate_test("Pam", address(this)), "Could not register candidate");
     }
 
+    /// @notice Tests the registration of a candidate and expects a revert if the same sender tries to register again.
+    /// @dev This function first registers a candidate and then attempts to register the same candidate again to trigger a revert.
     function test_revert_register_can_for_same_sender() public {
         assertTrue(register_candidate_test("Pam", address(this)), "Could not register candidate");
         vm.expectRevert("User is already registered");
         assertTrue(register_candidate_test("Pam", address(this)), "Could not register candidate");
     }
 
+    /// @notice Tests the registration of a World ID and expects a revert if the same sender tries to register again.
+    /// @dev This function first registers a World ID and then attempts to register the same World ID again to trigger a revert.
     function test_revert_register_wID_for_same_sender() public {
         assertTrue(register_worldID_test("Jim", address(this)), "Could not register worldID");
         vm.expectRevert("User is already registered");
         assertTrue(register_worldID_test("Jim", address(this)), "Could not register worldID");
     }
 
+    /// @notice Tests the voting of a candidate by a world ID where they have both correctly registered.
+    /// @dev First will register the world ID and the candidate then will recommend the candidate with vote weight of 100 (i.e. all its weight).
     function test_vote_for_1() public {
         assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");
 
@@ -64,7 +75,8 @@ contract SocialGraphTest is Test {
         vp.pop();
         assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
-
+    /// @notice Tests the voting process with an incorrect candidate address and expects a revert.
+    /// @dev This function registers a World ID user and then attempts to vote with a fake candidate address.
     function test_revert_vote_incorrect_candidate(address fake_can_addr) public {
         assertTrue(register_worldID_test("Michael", address(this)), "Could not register worldID user");
 
@@ -77,6 +89,8 @@ contract SocialGraphTest is Test {
         assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
 
+    /// @notice Tests the voting process when the World ID is not registered and expects a revert.
+    /// @dev This function attempts to vote without registering the World ID, expecting the `recommendCandidate` function to revert with the message "User is not registered".
     function test_revert_vote_wID_not_registered(address fake_can_addr) public {
         // Note: Here since the address calling the function is not signed up we can just call recommend
         
@@ -89,6 +103,8 @@ contract SocialGraphTest is Test {
         assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
 
+    /// @notice Tests the voting process by a registered candidate and expects a revert.
+    /// @dev This function registers a candidate and then attempts to vote, expecting the `recommendCandidate` function to revert with the message "User cannot vote".
     function test_revert_candidate_vote(address fake_can_addr) public {
         assertTrue(register_candidate_test("Ross", address(this)), "Could not register candidate");
         
@@ -101,6 +117,10 @@ contract SocialGraphTest is Test {
         assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
 
+
+    /// @notice will test the update status function to check that a candidate can become a verified identity
+    /// @dev will register 7 world IDs and vote with all their voting power to overcome the threshold allowing 
+    /// the can to become verified.
     function test_update_status_verified_7_wID_with_100_voting_power_each() public {        
         assertTrue(register_candidate_test("Andy", address(this)));
                 
@@ -211,6 +231,9 @@ contract SocialGraphTest is Test {
         assertEq(voting.getUser(address(7890)).vhot, 60, "Must have vhot = alpha * 100");
     }
 
+    /// @notice will test the update status function that it reverts if not voting power is not over threshold
+    /// @dev will register 6 world IDs and vote with all their voting power but will revert as it is not enough
+    /// voting power.
     function test_revert_update_status_verified_6_wID_with_100_voting_power_each() public {       
         assertTrue(register_candidate_test("Andy", address(this)));
                 
@@ -291,6 +314,9 @@ contract SocialGraphTest is Test {
         voting.updateStatusVerified();
     }
 
+    /// @notice will test the update status function to check that a candidate can become a verified identity
+    /// @dev will register 13 world IDs and vote with half their voting power to overcome the threshold allowing 
+    /// the can to become verified.
     function test_update_status_verified_13_wID_with_50_voting_power_each() public {
         assertTrue(register_candidate_test("Andy", address(this)));
 
@@ -470,6 +496,9 @@ contract SocialGraphTest is Test {
         assertEq(verified_candidate.vcold, 0, "Did not update status");
     }
 
+    /// @notice will test the claim function when the candidate has become verifed and the world ID claims its rewards
+    /// @dev will register 7 world IDs and vote with all their voting power to overcome the threshold allowing 
+    /// the can to become verified, will call the update status and then the claim.
     function test_claim_candidate_is_verified() public {
         assertTrue(register_candidate_test("Andy", address(this)));
 
@@ -609,7 +638,10 @@ contract SocialGraphTest is Test {
         assertEq(epochs.length, 0, "epochs must return to original length");
     } 
 
-        function test_claim_candidate_is_not_verified() public {
+    /// @notice will test claim function when the candidate has not become verifed and the world ID claims its rewards
+    /// @dev will register 7 world IDs and vote with all their voting power to overcome the threshold allowing the
+    /// candidate to become verified, will call the update status and then the claim but the rewards must not change.
+    function test_claim_candidate_is_not_verified() public {
         assertTrue(register_candidate_test("Andy", address(this)));
 
         // sign up 1
@@ -743,6 +775,8 @@ contract SocialGraphTest is Test {
     } 
 
 
+    /// @notice will test penalise of a recommender
+    /// @dev will register a candidate and a world ID, then the world ID will vote and the candidate will penalise them.
     function test_penalise_recommender() public {
         assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");
                 
@@ -777,6 +811,8 @@ contract SocialGraphTest is Test {
         assertEq(penalised_worldID_user.vcold, 0, "vcold not decreased");
     }
 
+    /// @notice will test penalise of a world ID that is not a recommender
+    /// @dev will register a candidate and a world ID, then the candidate will penalise them but it should revert.
     function test_penalise_no_vote() public {
         assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");
                 
@@ -788,6 +824,10 @@ contract SocialGraphTest is Test {
     }
 
 
+
+    /// @dev helper function to assert correct all the registration parameters
+    /// @param _name - name of world ID user to be registered
+    /// @param wID_addr - address world ID signed up with
     function register_worldID_test(string memory _name, address wID_addr) private returns (bool) {
         voting.registerAsWorldIDHolder( _name);
         Worldcoin.User memory user = voting.getUser(wID_addr);
@@ -802,6 +842,9 @@ contract SocialGraphTest is Test {
         return true;
     }
 
+    /// @dev helper function to assert correct all the registration parameters
+    /// @param _name - name of candidate user to be registered
+    /// @param can_addr - address candidate signed up with
     function register_candidate_test(string memory _name, address can_addr) private returns (bool) {
         voting.registerAsCandidate(_name);
         
