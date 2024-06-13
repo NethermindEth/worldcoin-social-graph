@@ -35,12 +35,12 @@ contract Worldcoin {
 
     /// @notice total amount of voting power allocated to the candidates
     /// @dev maps epoch to sum
-    mapping(uint256 epoch => uint256 distributedVotingPower) rewards_per_epoch;
+    mapping(uint256 epoch => uint256 distributedVotingPower) rewardsPerEpoch;
 
     // counting weights per epoch
     // for one user, the map takes epoch to corresponding weight that user has assigned to users that become verified in
     // that epoch
-    mapping(address => mapping(uint256 => uint256) epochWeights) user_epoch_weights;
+    mapping(address => mapping(uint256 => uint256) epochWeights) userEpochWeights;
 
     //x is the minimum power of Verified users needed in order to create fake Verified identities
     uint16 internal constant x = 600;
@@ -54,8 +54,8 @@ contract Worldcoin {
     //sum of weights allocated to a candidate user
     mapping(address => uint256) assignedWeight;
 
-    mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for
-    mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you
+    mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for @todo change to public
+    mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you @todo change to public
 
     modifier canVote(address _user) {
         require(

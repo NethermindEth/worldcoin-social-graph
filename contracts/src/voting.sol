@@ -4,6 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 import { Worldcoin } from "./social_graph.sol";
 import { verifyWorldID } from "./verifyWorldID.sol";
 import { ABDKMath64x64 } from "@abdk-library/ABDKMath64x64.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract Voting is Worldcoin {
     verifyWorldID worldIDContract;
@@ -37,11 +38,6 @@ contract Voting is Worldcoin {
         return ABDKMath64x64.toUInt(result);
     }
 
-    // @todo make it private if it's not going to be inherited
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a <= b ? a : b;
-    }
-
     // @todo should this be public?
     function currentEpoch() internal view returns (uint256) {
         return (block.number / 50_064) + 1;
@@ -65,7 +61,7 @@ contract Voting is Worldcoin {
         uint256 c_epoch = currentEpoch();
         // add new user to user map
         users[msg.sender] = User(_name, true, 100, 0, Status.WORLD_ID_HOLDER, 0, c_epoch - 1);
-        user_epoch_weights[msg.sender][c_epoch] = 0;
+        userEpochWeights[msg.sender][c_epoch] = 0;
     }
 
     // @todo use natspec comments
@@ -89,7 +85,7 @@ contract Voting is Worldcoin {
         // Iterate through the array of votes
         for (uint256 i = 0; i < _votes.length; i++) {
             address candidate = _votes[i].user;
-            uint256 weight = min(1000 - assignedWeight[candidate], _votes[i].weight);
+            uint256 weight = Math.min(1000 - assignedWeight[candidate], _votes[i].weight);
             // Check if the candidate is valid
             require(users[candidate].status == Status.CANDIDATE, "WorldCoinGraph: INVALID_CANDIDATE");
 
@@ -137,16 +133,16 @@ contract Voting is Worldcoin {
             uint256 _weight = recommenders[msg.sender][i].weight;
             address addressOfRecommender = recommenders[msg.sender][i].user;
 
-            users[addressOfRecommender].vhot += (a * _weight) / 100;
+            users[addressOfRecommender].vhot += Math.mulDiv(a, _weight, 100);
             users[addressOfRecommender].vcold -= _weight;
 
-            user_epoch_weights[addressOfRecommender][c_epoch] += _weight;
-            rewards_per_epoch[c_epoch] += _weight;
+            userEpochWeights[addressOfRecommender][c_epoch] += _weight;
+            rewardsPerEpoch[c_epoch] += _weight;
         }
     }
 
     //Function to return information about a particular recommender
-    function getRecommenderPosition(address _user, address _sender) internal view returns (bool isRec, uint256 pos) {
+    function getRecommenderPosition(address _user, address _sender) private view returns (bool isRec, uint256 pos) {
         // Will loop through recommenders searching for a particular user
         for (uint256 i = 0; i < recommenders[_sender].length; i++) {
             if (recommenders[_sender][i].user == _user) {
@@ -204,19 +200,14 @@ contract Voting is Worldcoin {
         uint256 totalReward = users[msg.sender].totalReward;
         for (uint256 i = 0; i != epochs.length; i++) {
             if (epochs[i] < c_epoch) {
+                uint256 epochWeight = userEpochWeights[msg.sender][epochs[i]];
                 // increase totalReward of the sender in users map
-                totalReward += c * (user_epoch_weights[msg.sender][epochs[i]] / rewards_per_epoch[epochs[i]]);
-                delete user_epoch_weights[msg.sender][epochs[i]];
+                if(epochWeight > 0) {
+                    totalReward += Math.mulDiv(c, epochWeight, rewardsPerEpoch[epochs[i]]);
+                    delete userEpochWeights[msg.sender][epochs[i]];
+                }
             }
         }
         users[msg.sender].totalReward = totalReward;
-    }
-
-    function getListOfRecommenders(address _user) public view returns (VotingPair[] memory) {
-        return recommenders[_user];
-    }
-
-    function getListOfRecommendees(address _user) public view returns (VotingPair[] memory) {
-        return recommendees[_user];
     }
 }
