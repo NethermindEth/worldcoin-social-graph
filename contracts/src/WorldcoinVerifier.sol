@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import { ByteHasher } from "./helpers/ByteHasher.sol";
 import { IWorldID } from "./interfaces/IWorldID.sol";
 
 contract WorldcoinVerifier {
-    using ByteHasher for bytes;
-
     ///////////////////////////////////////////////////////////////////////////////
     ///                                  ERRORS                                ///
     //////////////////////////////////////////////////////////////////////////////
@@ -34,7 +31,7 @@ contract WorldcoinVerifier {
     /// @param _actionId The World ID action ID
     constructor(IWorldID _worldId, string memory _appId, string memory _actionId) {
         worldId = _worldId;
-        externalNullifier = abi.encodePacked(abi.encodePacked(_appId).hashToField(), _actionId).hashToField();
+        externalNullifier = hashToField(abi.encodePacked(hashToField(abi.encodePacked(_appId)), _actionId));
     }
 
     /// @param signal An arbitrary input from the user, usually the user's wallet address (check README for further
@@ -50,7 +47,7 @@ contract WorldcoinVerifier {
 
         // We now verify the provided proof is valid and the user is verified by World ID
         worldId.verifyProof(
-            root, groupId, abi.encodePacked(signal).hashToField(), nullifierHash, externalNullifier, proof
+            root, groupId, hashToField(abi.encodePacked(signal)), nullifierHash, externalNullifier, proof
         );
 
         // We now record the user has done this, so they can't do it again (proof of uniqueness)
@@ -59,5 +56,9 @@ contract WorldcoinVerifier {
         // Finally, execute your logic here, for example issue a token, NFT, etc...
         // Make sure to emit some kind of event afterwards!
         emit IdentityVerified(nullifierHash);
+    }
+
+    function hashToField(bytes memory value) internal pure returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(value))) >> 8;
     }
 }

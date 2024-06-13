@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.2 <0.9.0;
 
-contract Worldcoin {
+contract WorldcoinSocialGraphStorage {
     struct VotingPair {
         address user;
         uint256 weight;
@@ -18,9 +18,6 @@ contract Worldcoin {
 
     struct User {
         string name;
-        //two categories of Users - those who are World ID Holders
-        //and those who are candidates
-        bool isWorldIDHolder;
         //VAL of node and is a dynamic variable
         uint256 vhot;
         uint256 vcold;
@@ -28,8 +25,6 @@ contract Worldcoin {
         /// @notice Status enum
         Status status;
         uint256 totalReward;
-        // last epoch for which the user claimed their voting rewards
-        uint256 lepoch;
     }
 
     /// @notice total amount of voting power allocated to the candidates

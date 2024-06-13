@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.2 <0.9.0;
 
-import { Worldcoin } from "./social_graph.sol";
-import { verifyWorldID } from "./verifyWorldID.sol";
+import { WorldcoinSocialGraphStorage } from "./WorldcoinSocialGraphStorage.sol";
+import { WorldcoinVerifier } from "./WorldcoinVerifier.sol";
 import { ABDKMath64x64 } from "@abdk-library/ABDKMath64x64.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
-contract Voting is Worldcoin {
-    verifyWorldID public immutable worldIDContract;
+contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
+    WorldcoinVerifier public immutable worldcoinVerifier;
 
     /// @notice Event for user registration as World ID holder or Candidate
     event UserRegistered(address indexed user, Status status);
@@ -18,8 +18,8 @@ contract Voting is Worldcoin {
     /// @notice Event for penalising a user
     event Penalised(address indexed recommender, address indexed recommendee, uint256 weight);
 
-    constructor(verifyWorldID _worldIDContract) {
-        worldIDContract = _worldIDContract;
+    constructor(WorldcoinVerifier _worldcoinVerifier) {
+        worldcoinVerifier = _worldcoinVerifier;
     }
 
     //////////////////////
@@ -79,11 +79,9 @@ contract Voting is Worldcoin {
         onlyUnregistered(msg.sender)
     {
         // Perform checks to verify World ID
-        worldIDContract.verifyAndExecute(_signal, _root, _nullifierHash, _proof);
-        // compute current epoch
-        uint256 c_epoch = currentEpoch();
+        worldcoinVerifier.verifyAndExecute(_signal, _root, _nullifierHash, _proof);
         // add new user to user map
-        users[msg.sender] = User(_name, true, 100, 0, Status.WORLD_ID_HOLDER, 0, c_epoch - 1);
+        users[msg.sender] = User(_name, 100, 0, Status.WORLD_ID_HOLDER, 0);
         emit UserRegistered(msg.sender, Status.WORLD_ID_HOLDER);
     }
 
@@ -92,10 +90,8 @@ contract Voting is Worldcoin {
      * @param _name Name of the candidate
      */
     function registerAsCandidate(string calldata _name) public onlyUnregistered(msg.sender) {
-        // compute current epoch
-        uint256 c_epoch = currentEpoch();
         // add user to user map
-        users[msg.sender] = User(_name, false, 0, 0, Status.CANDIDATE, 0, c_epoch - 1);
+        users[msg.sender] = User(_name, 0, 0, Status.CANDIDATE, 0);
         emit UserRegistered(msg.sender, Status.CANDIDATE);
     }
 
