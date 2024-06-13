@@ -10,14 +10,27 @@ contract Voting is Worldcoin {
     verifyWorldID worldIDContract;
 
     /// @notice Event for user registration as World ID holder or Candidate
-    event UserRegistered(address indexed user, string name, Status status);
+    event UserRegistered(address indexed user, Status status);
     /// @notice Candidate verified event
-    event CandidateVerified(address indexed user, string name, Status status);
+    event CandidateVerified(address indexed user, Status status);
+    /// @notice Event for reward claims
+    event RewardClaimed(address indexed user, uint256 reward);
+    /// @notice Event for penalising a user
+    event Penalised(address indexed recommender, address indexed recommendee, uint256 weight);
 
     constructor(verifyWorldID _worldIDContract) {
         worldIDContract = _worldIDContract;
     }
 
+    //////////////////////
+    // Public functions //
+    //////////////////////
+
+    /**
+     * @notice Function to calculate the inverse power of a number
+     * @param input The input number
+     * @return inverse power of the input number
+     */
     function inversePower(uint256 input) public pure returns (uint256) {
         // Represent the percentage as a fixed-point number.
         int128 percentage = ABDKMath64x64.divu(input, 100);
@@ -38,47 +51,62 @@ contract Voting is Worldcoin {
         return ABDKMath64x64.toUInt(result);
     }
 
-    // @todo should this be public?
-    function currentEpoch() internal view returns (uint256) {
+    /**
+     * @notice Function to calculate the current epoch
+     * @return current epoch
+     */
+    function currentEpoch() public view returns (uint256) {
         return (block.number / 50_064) + 1;
     }
 
+    /**
+     * @notice Function to register an account as a World ID holder
+     * @param _name Name of the user
+     * @param _signal Signal for the World ID
+     * @param _root Root of the World ID
+     * @param _nullifierHash Nullifier hash of the World ID
+     * @param _proof Array of proof elements
+     */
     // Function to register an account as a World ID holder
     function registerAsWorldIDHolder(
         string calldata _name,
-        address signal,
-        uint256 root,
-        uint256 nullifierHash,
-        uint256[8] calldata proof
+        address _signal,
+        uint256 _root,
+        uint256 _nullifierHash,
+        uint256[8] calldata _proof
     )
         public
     {
         // require(!users[msg.sender].isRegistered, "User is already registered");
         require(users[msg.sender].status == Status.UNREGISTERED, "User is already registered");
         // Perform checks to verify World ID
-        worldIDContract.verifyAndExecute(signal, root, nullifierHash, proof);
+        worldIDContract.verifyAndExecute(_signal, _root, _nullifierHash, _proof);
         // compute current epoch
         uint256 c_epoch = currentEpoch();
         // add new user to user map
         users[msg.sender] = User(_name, true, 100, 0, Status.WORLD_ID_HOLDER, 0, c_epoch - 1);
         userEpochWeights[msg.sender][c_epoch] = 0;
+        emit UserRegistered(msg.sender, Status.WORLD_ID_HOLDER);
     }
 
-    // @todo use natspec comments
-    // Function to register an account as a Candidate
-    function registerAsCandidate(string calldata _name) external {
+    /**
+     * @notice Function to register an account as a Candidate
+     * @param _name Name of the candidate
+     */
+    function registerAsCandidate(string calldata _name) public {
         require(users[msg.sender].status == Status.UNREGISTERED, "User is already registered");
         // compute current epoch
         uint256 c_epoch = currentEpoch();
         // add user to user map
         users[msg.sender] = User(_name, false, 0, 0, Status.CANDIDATE, 0, c_epoch - 1);
+        emit UserRegistered(msg.sender, Status.CANDIDATE);
     }
 
     /**
      * @notice Function to recommend candidates
      * @param _votes Array of VotingPair structs containing the candidate and the weight of the vote
      */
-    function recommendCandidates(VotingPair[] memory _votes) external canVote(msg.sender) {
+    function recommendCandidates(VotingPair[] memory _votes) public canVote(msg.sender) {
         uint256 sumOfWeights = 0;
         uint256 remainingVotingPower = users[msg.sender].vhot;
 
@@ -87,10 +115,10 @@ contract Voting is Worldcoin {
             address candidate = _votes[i].user;
             uint256 weight = Math.min(1000 - assignedWeight[candidate], _votes[i].weight);
             // Check if the candidate is valid
-            require(users[candidate].status == Status.CANDIDATE, "WorldCoinGraph: INVALID_CANDIDATE");
+            require(users[candidate].status == Status.CANDIDATE, "WorldcoinGraph: INVALID_CANDIDATE");
 
             // Check if the voter has enough voting power
-            require(remainingVotingPower >= weight, "WorldCoinGraph: VOTING_POWER_EXCEEDED");
+            require(remainingVotingPower >= weight, "WorldcoinGraph: VOTING_POWER_EXCEEDED");
 
             // Update the assigned weight for the candidate
             assignedWeight[candidate] += weight;
@@ -110,25 +138,26 @@ contract Voting is Worldcoin {
         users[msg.sender].vcold += sumOfWeights;
     }
 
-    //Function called by candidate to update his/her status
+    /**
+     * @notice Function called by candidate to update his/her status
+     */
     function updateStatusVerified() public {
         // msg.sender should be a candidate
-        require(users[msg.sender].status == Status.CANDIDATE, "WorldCoinGraph: INVALID_USER");
+        require(users[msg.sender].status == Status.CANDIDATE, "WorldcoinGraph: INVALID_USER");
         uint256 totalWeight = 0;
         for (uint256 i = 0; i < recommenders[msg.sender].length; i++) {
             //stores the total weight received as votes
             totalWeight += recommenders[msg.sender][i].weight;
         }
-        require(totalWeight > x, "User should have higher power than threshold");
-        //val refers to the voting power a user has
-        //val currently has precision of 5 decimals
+        require(totalWeight > x, "WorldcoinGraph: INSUFFICIENT_VOTING_POWER");
+        // val refers to the voting power a user with a precision of 5 decimals
         uint256 val = 1e5 - inversePower(totalWeight / 2);
 
         users[msg.sender].status = Status.VERIFIED_IDENTITIY;
         users[msg.sender].vhot = val / 1e3;
 
         uint256 c_epoch = currentEpoch();
-
+        uint256 rewardsInCurrentEpoch = rewardsPerEpoch[c_epoch];
         for (uint256 i = 0; i < recommenders[msg.sender].length; i++) {
             uint256 _weight = recommenders[msg.sender][i].weight;
             address addressOfRecommender = recommenders[msg.sender][i].user;
@@ -137,11 +166,64 @@ contract Voting is Worldcoin {
             users[addressOfRecommender].vcold -= _weight;
 
             userEpochWeights[addressOfRecommender][c_epoch] += _weight;
-            rewardsPerEpoch[c_epoch] += _weight;
+            rewardsInCurrentEpoch += _weight;
         }
+        rewardsPerEpoch[c_epoch] = rewardsInCurrentEpoch;
+
+        emit CandidateVerified(msg.sender, Status.VERIFIED_IDENTITIY);
     }
 
-    //Function to return information about a particular recommender
+    /**
+     * @notice Function called by candidates to penalise their recommenders
+     * @param _user Address of the user to penalise
+     */
+    function penalise(address _user) public {
+        require(users[msg.sender].status == Status.CANDIDATE, "WorldcoinGraph: INVALID_USER");
+        // Check that userAddress is recommender of sender
+        // position of recommender in sender's recommenders lists
+        (bool isRecommender, uint256 position1) = getRecommenderPosition(_user, msg.sender);
+        require(isRecommender, "WorldcoinGraph: RECOMMENDER_NOT_FOUND");
+        uint256 position2 = getRecommendeePosition(_user, msg.sender);
+        uint256 t = recommenders[msg.sender][position1].weight;
+        // reduce vcold of user by weight of recommender
+        users[_user].vcold -= t;
+        // remove user from sender's recommender(users who vote for you) and recommendee(users who you vote for) list
+        recommenders[msg.sender][position1] = recommenders[msg.sender][recommenders[msg.sender].length - 1];
+        recommenders[msg.sender].pop();
+        recommendees[_user][position2] = recommenders[_user][recommenders[_user].length - 1];
+        recommendees[_user].pop();
+
+        emit Penalised(msg.sender, _user, t);
+    }
+
+    /**
+     * @notice Function called by verified identities/WorldID holders to claim rewards after voting
+     * @param epochs Array of epochs for which the user wants to claim rewards
+     */
+    function claimReward(uint256[] memory epochs) public {
+        require(users[msg.sender].status != Status.UNREGISTERED, "WorldcoinGraph: UNREGISTERED_USER");
+        uint256 c_epoch = currentEpoch();
+        uint256 totalReward = users[msg.sender].totalReward;
+        for (uint256 i = 0; i != epochs.length; i++) {
+            uint256 epoch = epochs[i];
+            if (epoch < c_epoch) {
+                uint256 epochWeight = userEpochWeights[msg.sender][epoch];
+                // increase totalReward of the sender in users map
+                if (epochWeight > 0) {
+                    totalReward += Math.mulDiv(c, epochWeight, rewardsPerEpoch[epoch]);
+                    delete userEpochWeights[msg.sender][epoch];
+                }
+            }
+        }
+        users[msg.sender].totalReward = totalReward;
+        emit RewardClaimed(msg.sender, totalReward);
+    }
+
+    ///////////////////////
+    // Private functions //
+    ///////////////////////
+
+    /// @notice Function to return information about a particular recommender
     function getRecommenderPosition(address _user, address _sender) private view returns (bool isRec, uint256 pos) {
         // Will loop through recommenders searching for a particular user
         for (uint256 i = 0; i < recommenders[_sender].length; i++) {
@@ -154,60 +236,17 @@ contract Voting is Worldcoin {
     }
 
     /**
-     * @notice Function to return information about a particular recommendee
+     * @notice Function to return array position of the recommendee
      * @param _user Address of the user to search for
      * @param _sender Address of the sender
      * @return pos Position of the recommendee in the sender's recommendees list
      */
     function getRecommendeePosition(address _user, address _sender) private view returns (uint256 pos) {
         // Will loop through recommendees searching for a particular user
-        for (uint256 i = 0; i < recommendees[_user].length; i++) {
+        for (uint256 i = 0; i != recommendees[_user].length; i++) {
             if (recommendees[_user][i].user == _sender) {
                 return i;
             }
         }
-    }
-
-    /**
-     * @notice Function called by candidates to penalise their recommenders
-     * @param _user Address of the user to penalise
-     */
-    function penalise(address _user) public {
-        require(users[msg.sender].status == Status.CANDIDATE, "WorldCoinGraph: USER_NOT_A_CANDIDATE");
-        // Check that userAddress is recommender of sender
-        // position of recommender in sender's recommenders lists
-        (bool isRecommender, uint256 position1) = getRecommenderPosition(_user, msg.sender);
-        require(isRecommender, "WorldCoinGraph: USER_NOT_A_RECOMMENDER");
-        uint256 position2 = getRecommendeePosition(_user, msg.sender);
-        // set t to be weight
-        uint256 t = recommenders[msg.sender][position1].weight;
-        // reduce vcold of user
-        users[_user].vcold -= t;
-        // remove user from sender's recommender(users who vote for you) and recommendee(users who you vote for) list
-        recommenders[msg.sender][position1] = recommenders[msg.sender][recommenders[msg.sender].length - 1];
-        recommenders[msg.sender].pop();
-        recommendees[_user][position2] = recommenders[_user][recommenders[_user].length - 1];
-        recommendees[_user].pop();
-    }
-
-    /**
-     * @notice Function called by verified identities/WorldID holders to claim rewards after voting
-     * @param epochs Array of epochs for which the user wants to claim rewards
-     */
-    function claimReward(uint256[] memory epochs) public {
-        require(users[msg.sender].status != Status.UNREGISTERED, "WorldCoinGraph: UNREGISTERED_USER");
-        uint256 c_epoch = currentEpoch();
-        uint256 totalReward = users[msg.sender].totalReward;
-        for (uint256 i = 0; i != epochs.length; i++) {
-            if (epochs[i] < c_epoch) {
-                uint256 epochWeight = userEpochWeights[msg.sender][epochs[i]];
-                // increase totalReward of the sender in users map
-                if(epochWeight > 0) {
-                    totalReward += Math.mulDiv(c, epochWeight, rewardsPerEpoch[epochs[i]]);
-                    delete userEpochWeights[msg.sender][epochs[i]];
-                }
-            }
-        }
-        users[msg.sender].totalReward = totalReward;
     }
 }
