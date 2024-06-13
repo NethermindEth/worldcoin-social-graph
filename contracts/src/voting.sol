@@ -84,7 +84,6 @@ contract Voting is Worldcoin {
         uint256 c_epoch = currentEpoch();
         // add new user to user map
         users[msg.sender] = User(_name, true, 100, 0, Status.WORLD_ID_HOLDER, 0, c_epoch - 1);
-        userEpochWeights[msg.sender][c_epoch] = 0;
         emit UserRegistered(msg.sender, Status.WORLD_ID_HOLDER);
     }
 
