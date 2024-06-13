@@ -7,7 +7,7 @@ import { ABDKMath64x64 } from "@abdk-library/ABDKMath64x64.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract Voting is Worldcoin {
-    verifyWorldID worldIDContract;
+    verifyWorldID public immutable worldIDContract;
 
     /// @notice Event for user registration as World ID holder or Candidate
     event UserRegistered(address indexed user, Status status);
