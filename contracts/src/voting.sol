@@ -187,11 +187,6 @@ contract Voting is Worldcoin {
         }
     }
 
-    function getUser(address user_addr) public view returns (User memory) {
-        return users[user_addr];
-    }
-
-
     function getListOfRecommenders(address _userAddress) public view returns (VotingPair[] memory) {
         return recommenders[_userAddress];
     }

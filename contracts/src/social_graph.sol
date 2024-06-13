@@ -47,7 +47,7 @@ contract Worldcoin {
     // parameter that determines the rewards per epoch to be shared
     uint256 internal c = 140000;
     //stores candidates and world Id holders
-    mapping(address => User) internal users;
+    mapping(address => User) public users;
     //sum of weights allocated to a candidate user
     mapping(address => uint256) public assignedWeight;
 
