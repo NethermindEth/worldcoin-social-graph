@@ -58,10 +58,9 @@ contract Worldcoin {
     mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you
 
     modifier canVote(address _user) {
-        // @todo shorten the error message: e.e., "INVALID_VOTER", or "WorldcoinGraph: INVALID_VOTER"
         require(
             users[_user].status == Status.WORLD_ID_HOLDER || users[_user].status == Status.VERIFIED_IDENTITIY,
-            "INVALID_VOTER"
+            "WorldcoinGraph: INVALID_VOTER"
         );
         _;
     }
