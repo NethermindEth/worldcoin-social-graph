@@ -141,11 +141,7 @@ contract Voting is Worldcoin {
     function updateStatusVerified() public {
         // msg.sender should be a candidate
         require(users[msg.sender].status == Status.CANDIDATE, "WorldcoinGraph: INVALID_USER");
-        uint256 totalWeight = 0;
-        for (uint256 i = 0; i < recommenders[msg.sender].length; i++) {
-            //stores the total weight received as votes
-            totalWeight += recommenders[msg.sender][i].weight;
-        }
+        uint256 totalWeight = assignedWeight[msg.sender];
         require(totalWeight > x, "WorldcoinGraph: INSUFFICIENT_VOTING_POWER");
         // val refers to the voting power a user with a precision of 5 decimals
         uint256 val = 1e5 - inversePower(totalWeight / 2);
