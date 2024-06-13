@@ -76,9 +76,8 @@ contract Voting is Worldcoin {
         uint256[8] calldata _proof
     )
         public
+        onlyUnregistered(msg.sender)
     {
-        // require(!users[msg.sender].isRegistered, "User is already registered");
-        require(users[msg.sender].status == Status.UNREGISTERED, "User is already registered");
         // Perform checks to verify World ID
         worldIDContract.verifyAndExecute(_signal, _root, _nullifierHash, _proof);
         // compute current epoch
@@ -93,8 +92,7 @@ contract Voting is Worldcoin {
      * @notice Function to register an account as a Candidate
      * @param _name Name of the candidate
      */
-    function registerAsCandidate(string calldata _name) public {
-        require(users[msg.sender].status == Status.UNREGISTERED, "User is already registered");
+    function registerAsCandidate(string calldata _name) public onlyUnregistered(msg.sender) {
         // compute current epoch
         uint256 c_epoch = currentEpoch();
         // add user to user map
@@ -106,7 +104,7 @@ contract Voting is Worldcoin {
      * @notice Function to recommend candidates
      * @param _votes Array of VotingPair structs containing the candidate and the weight of the vote
      */
-    function recommendCandidates(VotingPair[] memory _votes) public canVote(msg.sender) {
+    function recommendCandidates(VotingPair[] memory _votes) public onlyValidVoter(msg.sender) {
         uint256 sumOfWeights = 0;
         uint256 remainingVotingPower = users[msg.sender].vhot;
 
@@ -200,8 +198,7 @@ contract Voting is Worldcoin {
      * @notice Function called by verified identities/WorldID holders to claim rewards after voting
      * @param epochs Array of epochs for which the user wants to claim rewards
      */
-    function claimReward(uint256[] memory epochs) public {
-        require(users[msg.sender].status != Status.UNREGISTERED, "WorldcoinGraph: UNREGISTERED_USER");
+    function claimReward(uint256[] memory epochs) public onlyValidVoter(msg.sender) {
         uint256 c_epoch = currentEpoch();
         uint256 totalReward = users[msg.sender].totalReward;
         for (uint256 i = 0; i != epochs.length; i++) {

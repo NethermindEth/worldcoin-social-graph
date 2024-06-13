@@ -4,11 +4,10 @@ pragma solidity >=0.8.2 <0.9.0;
 
 contract Worldcoin {
     struct VotingPair {
-        address user; // @todo rename "userAddress"-> "user"
+        address user;
         uint256 weight;
     }
 
-    /// @todo Change the names to actual statuses
     enum Status {
         UNREGISTERED,
         WORLD_ID_HOLDER,
@@ -35,12 +34,12 @@ contract Worldcoin {
 
     /// @notice total amount of voting power allocated to the candidates
     /// @dev maps epoch to sum
-    mapping(uint256 epoch => uint256 distributedVotingPower) rewardsPerEpoch;
+    mapping(uint256 epoch => uint256 distributedVotingPower) public rewardsPerEpoch;
 
-    // counting weights per epoch
-    // for one user, the map takes epoch to corresponding weight that user has assigned to users that become verified in
-    // that epoch
-    mapping(address => mapping(uint256 => uint256) epochWeights) userEpochWeights;
+    /// @notice counting weights per epoch
+    /// @dev for one user, the map takes epoch to corresponding weight that user has assigned to users that become
+    /// verified in that epoch
+    mapping(address => mapping(uint256 => uint256) epochWeights) public userEpochWeights;
 
     //x is the minimum power of Verified users needed in order to create fake Verified identities
     uint16 internal constant x = 600;
@@ -50,14 +49,19 @@ contract Worldcoin {
     // parameter that determines the rewards per epoch to be shared
     uint32 internal constant c = 140_000;
     //stores candidates and world Id holders
-    mapping(address => User) internal users; // @todo change to public?
+    mapping(address => User) public users;
     //sum of weights allocated to a candidate user
-    mapping(address => uint256) assignedWeight;
+    mapping(address => uint256) public assignedWeight;
 
-    mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for @todo change to public
-    mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you @todo change to public
+    mapping(address => VotingPair[]) public recommendees; // users who you vote/vouch for
+    mapping(address => VotingPair[]) public recommenders; // users who vote/vouch for you
 
-    modifier canVote(address _user) {
+    modifier onlyUnregistered(address _user) {
+        require(users[_user].status == Status.UNREGISTERED, "WorldcoinGraph: ALREADY_REGISTERED");
+        _;
+    }
+
+    modifier onlyValidVoter(address _user) {
         require(
             users[_user].status == Status.WORLD_ID_HOLDER || users[_user].status == Status.VERIFIED_IDENTITIY,
             "WorldcoinGraph: INVALID_VOTER"
