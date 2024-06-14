@@ -402,7 +402,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         vm.stopPrank();
     }
 
-    function test_InversePower() public pure {
+    function test_InversePower() public view {
         // Match against manually calculated values
         assertEq(voting.inversePower(1), 99_004, "inversePower(1) should return 99005");
         assertEq(voting.inversePower(100), 36_787, "inversePower(100) should return 36788");
@@ -411,7 +411,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         assertEq(voting.inversePower(0), 100_000, "inversePower(0) should return 100000");
     }
 
-    function testFuzz_InversePower(uint256 input) public pure {
+    function testFuzz_InversePower(uint256 input) public view {
         input = bound(input, 1, 1000);
         uint256 result = voting.inversePower(input);
         assertLe(result, 100_000, "inversePower should return a value less than or equal to 100000");
