@@ -2,8 +2,9 @@
 pragma solidity ^0.8.13;
 
 import { IWorldID } from "./interfaces/IWorldID.sol";
+import { IWorldcoinVerifier } from "./interfaces/IWorldcoinVerifier.sol";
 
-contract WorldcoinVerifier {
+contract WorldcoinVerifier is IWorldcoinVerifier {
     ///////////////////////////////////////////////////////////////////////////////
     ///                                  ERRORS                                ///
     //////////////////////////////////////////////////////////////////////////////
