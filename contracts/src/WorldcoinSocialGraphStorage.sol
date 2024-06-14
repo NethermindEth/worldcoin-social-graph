@@ -12,7 +12,7 @@ contract WorldcoinSocialGraphStorage {
         UNREGISTERED,
         WORLD_ID_HOLDER,
         CANDIDATE,
-        VERIFIED_IDENTITIY,
+        VERIFIED_IDENTITY,
         REJECTED
     }
 
@@ -58,7 +58,7 @@ contract WorldcoinSocialGraphStorage {
 
     modifier onlyValidVoter(address _user) {
         require(
-            users[_user].status == Status.WORLD_ID_HOLDER || users[_user].status == Status.VERIFIED_IDENTITIY,
+            users[_user].status == Status.WORLD_ID_HOLDER || users[_user].status == Status.VERIFIED_IDENTITY,
             "WorldcoinGraph: INVALID_VOTER"
         );
         _;
