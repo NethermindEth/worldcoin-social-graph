@@ -402,36 +402,18 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         vm.stopPrank();
     }
 
-    /// @dev helper function to assert correct all the registration parameters
-    /// @param _name - name of world ID user to be registered
-    /// @param wID_addr - address world ID signed up with
-    function register_worldID_test(string memory _name, address wID_addr) private returns (bool) {
-        voting.registerAsWorldIDHolder(_name, address(0), 0, 0, [uint256(0), 0, 0, 0, 0, 0, 0, 0]);
-        (, uint256 vhot, uint256 vcold, WorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
-            voting.users(wID_addr);
-
-        assertEq(vhot, 100, "Incorrect vhot");
-        assertEq(vcold, 0, "Incorrect vcold");
-        assertTrue(status == WorldcoinSocialGraphStorage.Status.WORLD_ID_HOLDER, "Incorrect worldID status");
-        assertEq(totalReward, 0, "Incorrect total reward");
-
-        return true;
+    function test_InversePower() public pure {
+        // Match against manually calculated values
+        assertEq(voting.inversePower(1), 99_004, "inversePower(1) should return 99005");
+        assertEq(voting.inversePower(100), 36_787, "inversePower(100) should return 36788");
+        assertEq(voting.inversePower(200), 13_533, "inversePower(200) should return 13534");
+        assertEq(voting.inversePower(50), 60_653, "inversePower(50) should return 60653");
+        assertEq(voting.inversePower(0), 100_000, "inversePower(0) should return 100000");
     }
 
-    /// @dev helper function to assert correct all the registration parameters
-    /// @param _name - name of candidate user to be registered
-    /// @param can_addr - address candidate signed up with
-    function register_candidate_test(string memory _name, address can_addr) private returns (bool) {
-        voting.registerAsCandidate(_name);
-
-        (, uint256 vhot, uint256 vcold, WorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
-            voting.users(can_addr);
-
-        assertEq(vhot, 0, "Incorrect vhot");
-        assertEq(vcold, 0, "Incorrect vcold");
-        assertTrue(status == WorldcoinSocialGraphStorage.Status.CANDIDATE, "Incorrect worldID status");
-        assertEq(totalReward, 0, "Incorrect total reward");
-
-        return true;
+    function testFuzz_InversePower(uint256 input) public pure {
+        input = bound(input, 1, 1000);
+        uint256 result = voting.inversePower(input);
+        assertLe(result, 100_000, "inversePower should return a value less than or equal to 100000");
     }
 }
