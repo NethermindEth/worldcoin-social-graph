@@ -404,9 +404,9 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
 
     function test_InversePower() public view {
         // Match against manually calculated values
-        assertEq(voting.inversePower(1), 99_004, "inversePower(1) should return 99005");
-        assertEq(voting.inversePower(100), 36_787, "inversePower(100) should return 36788");
-        assertEq(voting.inversePower(200), 13_533, "inversePower(200) should return 13534");
+        assertEq(voting.inversePower(1), 99_004, "inversePower(1) should return 99004");
+        assertEq(voting.inversePower(100), 36_787, "inversePower(100) should return 36787");
+        assertEq(voting.inversePower(200), 13_533, "inversePower(200) should return 13533");
         assertEq(voting.inversePower(50), 60_653, "inversePower(50) should return 60653");
         assertEq(voting.inversePower(0), 100_000, "inversePower(0) should return 100000");
     }
