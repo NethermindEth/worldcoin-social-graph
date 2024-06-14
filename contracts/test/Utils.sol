@@ -19,4 +19,37 @@ contract WorldcoinSocialGraphTestUtil is Test {
         verifierContract = new WorldcoinVerifierMock();
         voting = new WorldcoinSocialGraphVoting(IWorldcoinVerifier(address(verifierContract)));
     }
+
+    /// @dev helper function to assert correct all the registration parameters
+    /// @param _name - name of world ID user to be registered
+    /// @param wID_addr - address world ID signed up with
+    function register_worldID_test(string memory _name, address wID_addr) public returns (bool) {
+        voting.registerAsWorldIDHolder(_name, address(0), 0, 0, [uint256(0), 0, 0, 0, 0, 0, 0, 0]);
+        (, uint256 vhot, uint256 vcold, WorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
+            voting.users(wID_addr);
+
+        assertEq(vhot, 100, "Incorrect vhot");
+        assertEq(vcold, 0, "Incorrect vcold");
+        assertTrue(status == WorldcoinSocialGraphStorage.Status.WORLD_ID_HOLDER, "Incorrect worldID status");
+        assertEq(totalReward, 0, "Incorrect total reward");
+
+        return true;
+    }
+
+    /// @dev helper function to assert correct all the registration parameters
+    /// @param _name - name of candidate user to be registered
+    /// @param can_addr - address candidate signed up with
+    function register_candidate_test(string memory _name, address can_addr) public returns (bool) {
+        voting.registerAsCandidate(_name);
+
+        (, uint256 vhot, uint256 vcold, WorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
+            voting.users(can_addr);
+
+        assertEq(vhot, 0, "Incorrect vhot");
+        assertEq(vcold, 0, "Incorrect vcold");
+        assertTrue(status == WorldcoinSocialGraphStorage.Status.CANDIDATE, "Incorrect worldID status");
+        assertEq(totalReward, 0, "Incorrect total reward");
+
+        return true;
+    }
 }

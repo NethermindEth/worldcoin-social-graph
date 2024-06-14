@@ -48,8 +48,8 @@ contract WorldcoinSocialGraphStorage {
     //sum of weights allocated to a candidate user
     mapping(address => uint256) public assignedWeight;
 
-    mapping(address => VotingPair[]) public recommendees; // users who you vote/vouch for
-    mapping(address => VotingPair[]) public recommenders; // users who vote/vouch for you
+    mapping(address => VotingPair[]) internal recommendees; // users who you vote/vouch for
+    mapping(address => VotingPair[]) internal recommenders; // users who vote/vouch for you
 
     modifier onlyUnregistered(address _user) {
         require(users[_user].status == Status.UNREGISTERED, "WorldcoinGraph: ALREADY_REGISTERED");

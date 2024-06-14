@@ -194,8 +194,7 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
         uint256 totalReward = users[msg.sender].totalReward;
         for (uint256 i = 0; i != epochs.length; i++) {
             uint256 epoch = epochs[i];
-            if (epoch < c_epoch && rewardsPerEpoch[epochs[i]] != 0 && userEpochWeights[msg.sender][epochs[i]] != 0)
-            {
+            if (epoch < c_epoch && rewardsPerEpoch[epochs[i]] != 0 && userEpochWeights[msg.sender][epochs[i]] != 0) {
                 uint256 epochWeight = userEpochWeights[msg.sender][epoch];
                 // increase totalReward of the sender in users map
                 if (epochWeight > 0) {
