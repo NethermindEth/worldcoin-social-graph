@@ -2,12 +2,12 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 import { WorldcoinSocialGraphStorage } from "./WorldcoinSocialGraphStorage.sol";
-import { WorldcoinVerifier } from "./WorldcoinVerifier.sol";
+import { IWorldcoinVerifier } from "./interfaces/IWorldcoinVerifier.sol";
 import { ABDKMath64x64 } from "@abdk-library/ABDKMath64x64.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
-    WorldcoinVerifier public immutable worldcoinVerifier;
+    IWorldcoinVerifier public immutable worldcoinVerifier;
 
     /// @notice Event for user registration as World ID holder or Candidate
     event UserRegistered(address indexed user, Status status);
@@ -18,7 +18,7 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
     /// @notice Event for penalising a user
     event Penalised(address indexed recommender, address indexed recommendee, uint256 weight);
 
-    constructor(WorldcoinVerifier _worldcoinVerifier) {
+    constructor(IWorldcoinVerifier _worldcoinVerifier) {
         worldcoinVerifier = _worldcoinVerifier;
     }
 
@@ -142,7 +142,7 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
         // val refers to the voting power a user with a precision of 5 decimals
         uint256 val = 1e5 - inversePower(totalWeight / 2);
 
-        users[msg.sender].status = Status.VERIFIED_IDENTITIY;
+        users[msg.sender].status = Status.VERIFIED_IDENTITY;
         users[msg.sender].vhot = val / 1e3;
 
         uint256 c_epoch = currentEpoch();
@@ -159,7 +159,7 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
         }
         rewardsPerEpoch[c_epoch] = rewardsInCurrentEpoch;
 
-        emit CandidateVerified(msg.sender, Status.VERIFIED_IDENTITIY);
+        emit CandidateVerified(msg.sender, Status.VERIFIED_IDENTITY);
     }
 
     /**
@@ -179,7 +179,7 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
         // remove user from sender's recommender(users who vote for you) and recommendee(users who you vote for) list
         recommenders[msg.sender][position1] = recommenders[msg.sender][recommenders[msg.sender].length - 1];
         recommenders[msg.sender].pop();
-        recommendees[_user][position2] = recommenders[_user][recommenders[_user].length - 1];
+        recommendees[_user][position2] = recommendees[_user][recommendees[_user].length - 1];
         recommendees[_user].pop();
 
         emit Penalised(msg.sender, _user, t);
@@ -194,7 +194,8 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
         uint256 totalReward = users[msg.sender].totalReward;
         for (uint256 i = 0; i != epochs.length; i++) {
             uint256 epoch = epochs[i];
-            if (epoch < c_epoch) {
+            if (epoch < c_epoch && rewardsPerEpoch[epochs[i]] != 0 && userEpochWeights[msg.sender][epochs[i]] != 0)
+            {
                 uint256 epochWeight = userEpochWeights[msg.sender][epoch];
                 // increase totalReward of the sender in users map
                 if (epochWeight > 0) {
@@ -205,6 +206,14 @@ contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
         }
         users[msg.sender].totalReward = totalReward;
         emit RewardClaimed(msg.sender, totalReward);
+    }
+
+    function getListOfRecommenders(address _userAddress) public view returns (VotingPair[] memory) {
+        return recommenders[_userAddress];
+    }
+
+    function getListOfRecommendees(address _userAddress) public view returns (VotingPair[] memory) {
+        return recommendees[_userAddress];
     }
 
     ///////////////////////
