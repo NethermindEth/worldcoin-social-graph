@@ -1,32 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-
 pragma solidity >=0.8.2 <0.9.0;
 
-contract WorldcoinSocialGraphStorage {
-    struct VotingPair {
-        address user;
-        uint256 weight;
-    }
+import {IWorldcoinSocialGraphStorage} from "./interfaces/IWorldcoinSocialGraphStorage.sol";
 
-    enum Status {
-        UNREGISTERED,
-        WORLD_ID_HOLDER,
-        CANDIDATE,
-        VERIFIED_IDENTITY,
-        REJECTED
-    }
-
-    struct User {
-        string name;
-        //VAL of node and is a dynamic variable
-        uint256 vhot;
-        uint256 vcold;
-        //depends on `VAL` of node and is dynamic
-        /// @notice Status enum
-        Status status;
-        uint256 totalReward;
-    }
-
+contract WorldcoinSocialGraphStorage is IWorldcoinSocialGraphStorage{
     /// @notice total amount of voting power allocated to the candidates
     /// @dev maps epoch to sum
     mapping(uint256 epoch => uint256 distributedVotingPower) public rewardsPerEpoch;

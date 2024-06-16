@@ -1,22 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.2 <0.9.0;
 
-import { WorldcoinSocialGraphStorage } from "./WorldcoinSocialGraphStorage.sol";
-import { IWorldcoinVerifier } from "./interfaces/IWorldcoinVerifier.sol";
 import { ABDKMath64x64 } from "@abdk-library/ABDKMath64x64.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
+import { WorldcoinSocialGraphStorage } from "./WorldcoinSocialGraphStorage.sol";
+import { IWorldcoinVerifier } from "./interfaces/IWorldcoinVerifier.sol";
+import { IWorldcoinSocialGraphVoting } from "./interfaces/IWorldcoinSocialGraphVoting.sol";
 
-contract WorldcoinSocialGraphVoting is WorldcoinSocialGraphStorage {
+contract WorldcoinSocialGraphVoting is IWorldcoinSocialGraphVoting, WorldcoinSocialGraphStorage {
     IWorldcoinVerifier public immutable worldcoinVerifier;
-
-    /// @notice Event for user registration as World ID holder or Candidate
-    event UserRegistered(address indexed user, Status status);
-    /// @notice Candidate verified event
-    event CandidateVerified(address indexed user, Status status);
-    /// @notice Event for reward claims
-    event RewardClaimed(address indexed user, uint256 reward);
-    /// @notice Event for penalising a user
-    event Penalised(address indexed recommender, address indexed recommendee, uint256 weight);
 
     constructor(IWorldcoinVerifier _worldcoinVerifier) {
         worldcoinVerifier = _worldcoinVerifier;

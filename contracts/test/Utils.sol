@@ -6,6 +6,7 @@ import { Test } from "../lib/forge-std/src/Test.sol";
 import { WorldcoinSocialGraphVoting } from "../src/WorldcoinSocialGraphVoting.sol";
 import { WorldcoinVerifierMock } from "./Mocks/WorldcoinVerifierMock.sol";
 import { WorldcoinSocialGraphStorage } from "../src/WorldcoinSocialGraphStorage.sol";
+import { IWorldcoinSocialGraphStorage } from "../src/interfaces/IWorldcoinSocialGraphStorage.sol";
 import { DeployVoting } from "../scripts/voting.s.sol";
 import { IWorldcoinVerifier } from "../src/interfaces/IWorldcoinVerifier.sol";
 
@@ -25,12 +26,12 @@ contract WorldcoinSocialGraphTestUtil is Test {
     /// @param wID_addr - address world ID signed up with
     function register_worldID_test(string memory _name, address wID_addr) public returns (bool) {
         voting.registerAsWorldIDHolder(_name, address(0), 0, 0, [uint256(0), 0, 0, 0, 0, 0, 0, 0]);
-        (, uint256 vhot, uint256 vcold, WorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
+        (, uint256 vhot, uint256 vcold, IWorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
             voting.users(wID_addr);
 
         assertEq(vhot, 100, "Incorrect vhot");
         assertEq(vcold, 0, "Incorrect vcold");
-        assertTrue(status == WorldcoinSocialGraphStorage.Status.WORLD_ID_HOLDER, "Incorrect worldID status");
+        assertTrue(status == IWorldcoinSocialGraphStorage.Status.WORLD_ID_HOLDER, "Incorrect worldID status");
         assertEq(totalReward, 0, "Incorrect total reward");
 
         return true;
@@ -42,12 +43,12 @@ contract WorldcoinSocialGraphTestUtil is Test {
     function register_candidate_test(string memory _name, address can_addr) public returns (bool) {
         voting.registerAsCandidate(_name);
 
-        (, uint256 vhot, uint256 vcold, WorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
+        (, uint256 vhot, uint256 vcold, IWorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
             voting.users(can_addr);
 
         assertEq(vhot, 0, "Incorrect vhot");
         assertEq(vcold, 0, "Incorrect vcold");
-        assertTrue(status == WorldcoinSocialGraphStorage.Status.CANDIDATE, "Incorrect worldID status");
+        assertTrue(status == IWorldcoinSocialGraphStorage.Status.CANDIDATE, "Incorrect worldID status");
         assertEq(totalReward, 0, "Incorrect total reward");
 
         return true;

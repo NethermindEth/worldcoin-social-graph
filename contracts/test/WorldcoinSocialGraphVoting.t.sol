@@ -4,12 +4,13 @@ pragma solidity >=0.8.2 <0.9.0;
 import { WorldcoinSocialGraphVoting } from "../src/WorldcoinSocialGraphVoting.sol";
 import { WorldcoinVerifier } from "../src/WorldcoinVerifier.sol";
 import { WorldcoinSocialGraphStorage } from "../src/WorldcoinSocialGraphStorage.sol";
+import {IWorldcoinSocialGraphStorage} from "../src/interfaces/IWorldcoinSocialGraphStorage.sol";
 import { DeployVoting } from "../scripts/voting.s.sol";
 import { WorldcoinSocialGraphTestUtil } from "./Utils.sol";
 
 /// @title Testing for social graph
 contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
-    WorldcoinSocialGraphStorage.VotingPair[] vp;
+    IWorldcoinSocialGraphStorage.VotingPair[] vp;
     uint256[] epochs;
     string[13] names = [
         "Michael",
@@ -72,7 +73,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         assertTrue(register_candidate_test("Dwight", address(1234)));
         vm.stopPrank();
 
-        vp.push(WorldcoinSocialGraphStorage.VotingPair(address(1234), 100));
+        vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(1234), 100));
 
         voting.recommendCandidates(vp);
 
@@ -96,7 +97,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
     function test_revert_vote_incorrect_candidate(address fake_can_addr) public {
         assertTrue(register_worldID_test("Michael", address(this)), "Could not register worldID user");
 
-        vp.push(WorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
+        vp.push(IWorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
         vm.expectRevert();
         voting.recommendCandidates(vp);
 
@@ -111,7 +112,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
     function test_revert_vote_wID_not_registered(address fake_can_addr) public {
         // Note: Here since the address calling the function is not signed up we can just call recommend
 
-        vp.push(WorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
+        vp.push(IWorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
         vm.expectRevert("WorldcoinGraph: INVALID_VOTER");
         voting.recommendCandidates(vp);
 
@@ -126,7 +127,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
     function test_revert_candidate_vote(address fake_can_addr) public {
         assertTrue(register_candidate_test("Ross", address(this)), "Could not register candidate");
 
-        vp.push(WorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
+        vp.push(IWorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
         vm.expectRevert("WorldcoinGraph: INVALID_VOTER");
         voting.recommendCandidates(vp);
 
@@ -153,7 +154,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         for (uint256 i = 0; i < 7; i++) {
             startHoax(addrs[i]);
             register_worldID_test(names[i], addrs[i]);
-            vp.push(WorldcoinSocialGraphStorage.VotingPair(address(this), 100));
+            vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(this), 100));
             voting.recommendCandidates(vp);
             (, uint256 vhot,,,) = voting.users(addrs[i]);
             assertEq(vhot, 0, "User must have voted will all voting power");
@@ -164,10 +165,10 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
 
         voting.updateStatusVerified();
 
-        (, uint256 vhot_can, uint256 vcold_can, WorldcoinSocialGraphStorage.Status status_can,) =
+        (, uint256 vhot_can, uint256 vcold_can, IWorldcoinSocialGraphStorage.Status status_can,) =
             voting.users(address(this));
 
-        assertTrue(status_can == WorldcoinSocialGraphStorage.Status.VERIFIED_IDENTITY, "Did not update status");
+        assertTrue(status_can == IWorldcoinSocialGraphStorage.Status.VERIFIED_IDENTITY, "Did not update status");
         assertEq(vhot_can, 96, "Did not update vhot");
         assertEq(vcold_can, 0, "Did not update vcold");
 
@@ -196,7 +197,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         for (uint256 i = 0; i < 6; i++) {
             startHoax(addrs[i]);
             register_worldID_test(names[i], addrs[i]);
-            vp.push(WorldcoinSocialGraphStorage.VotingPair(address(this), 100));
+            vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(this), 100));
             voting.recommendCandidates(vp);
             (, uint256 vhot,,,) = voting.users(addrs[i]);
             assertEq(vhot, 0, "User must have voted will all voting power");
@@ -229,7 +230,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         for (uint256 i = 0; i < 13; i++) {
             startHoax(addrs[i]);
             register_worldID_test(names[i], addrs[i]);
-            vp.push(WorldcoinSocialGraphStorage.VotingPair(address(this), 50));
+            vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(this), 50));
             voting.recommendCandidates(vp);
             (, uint256 vhot,,,) = voting.users(addrs[i]);
             assertEq(vhot, 50, "User must have voted will half their voting power");
@@ -240,9 +241,9 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
 
         // candidate calls update status
         voting.updateStatusVerified();
-        (, uint256 vhot_can, uint256 vcold_can, WorldcoinSocialGraphStorage.Status status_can,) =
+        (, uint256 vhot_can, uint256 vcold_can, IWorldcoinSocialGraphStorage.Status status_can,) =
             voting.users(address(this));
-        assertTrue(status_can == WorldcoinSocialGraphStorage.Status.VERIFIED_IDENTITY, "Did not update status");
+        assertTrue(status_can == IWorldcoinSocialGraphStorage.Status.VERIFIED_IDENTITY, "Did not update status");
         assertEq(vhot_can, 96, "Did not update status");
         assertEq(vcold_can, 0, "Did not update status");
     }
@@ -267,7 +268,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         for (uint256 i = 0; i < 7; i++) {
             startHoax(addrs[i]);
             register_worldID_test(names[i], addrs[i]);
-            vp.push(WorldcoinSocialGraphStorage.VotingPair(address(this), 100));
+            vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(this), 100));
             voting.recommendCandidates(vp);
             (, uint256 vhot,,,) = voting.users(addrs[i]);
             assertEq(vhot, 0, "User must have voted will all voting power");
@@ -278,9 +279,9 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
 
         // candidate calls update status
         voting.updateStatusVerified();
-        (, uint256 vhot_can, uint256 vcold_can, WorldcoinSocialGraphStorage.Status status_can,) =
+        (, uint256 vhot_can, uint256 vcold_can, IWorldcoinSocialGraphStorage.Status status_can,) =
             voting.users(address(this));
-        assertTrue(status_can == WorldcoinSocialGraphStorage.Status.VERIFIED_IDENTITY, "Did not update status");
+        assertTrue(status_can == IWorldcoinSocialGraphStorage.Status.VERIFIED_IDENTITY, "Did not update status");
         assertEq(vhot_can, 96, "Did not update status");
         assertEq(vcold_can, 0, "Did not update status");
 
@@ -331,7 +332,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         for (uint256 i = 0; i < 7; i++) {
             startHoax(addrs[i]);
             register_worldID_test(names[i], addrs[i]);
-            vp.push(WorldcoinSocialGraphStorage.VotingPair(address(this), 100));
+            vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(this), 100));
             voting.recommendCandidates(vp);
             (, uint256 vhot,,,) = voting.users(addrs[i]);
             assertEq(vhot, 0, "User must have voted with all voting power");
@@ -363,7 +364,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         assertTrue(register_candidate_test("Dwight", address(1234)));
         vm.stopPrank();
 
-        vp.push(WorldcoinSocialGraphStorage.VotingPair(address(1234), 100));
+        vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(1234), 100));
 
         voting.recommendCandidates(vp);
 
