@@ -24,7 +24,7 @@ contract WorldcoinSocialGraphTestUtil is Test {
     /// @dev helper function to assert correct all the registration parameters
     /// @param _name - name of world ID user to be registered
     /// @param wID_addr - address world ID signed up with
-    function register_worldID_test(string memory _name, address wID_addr) public returns (bool) {
+    function register_worldID_test(string memory _name, address wID_addr) public {
         voting.registerAsWorldIDHolder(_name, address(0), 0, 0, [uint256(0), 0, 0, 0, 0, 0, 0, 0]);
         (, uint256 vhot, uint256 vcold, IWorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
             voting.users(wID_addr);
@@ -33,14 +33,12 @@ contract WorldcoinSocialGraphTestUtil is Test {
         assertEq(vcold, 0, "Incorrect vcold");
         assertTrue(status == IWorldcoinSocialGraphStorage.Status.WORLD_ID_HOLDER, "Incorrect worldID status");
         assertEq(totalReward, 0, "Incorrect total reward");
-
-        return true;
     }
 
     /// @dev helper function to assert correct all the registration parameters
     /// @param _name - name of candidate user to be registered
     /// @param can_addr - address candidate signed up with
-    function register_candidate_test(string memory _name, address can_addr) public returns (bool) {
+    function register_candidate_test(string memory _name, address can_addr) public {
         voting.registerAsCandidate(_name);
 
         (, uint256 vhot, uint256 vcold, IWorldcoinSocialGraphStorage.Status status, uint256 totalReward) =
@@ -50,7 +48,5 @@ contract WorldcoinSocialGraphTestUtil is Test {
         assertEq(vcold, 0, "Incorrect vcold");
         assertTrue(status == IWorldcoinSocialGraphStorage.Status.CANDIDATE, "Incorrect worldID status");
         assertEq(totalReward, 0, "Incorrect total reward");
-
-        return true;
     }
 }

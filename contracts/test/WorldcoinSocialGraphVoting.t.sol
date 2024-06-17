@@ -4,7 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 import { WorldcoinSocialGraphVoting } from "../src/WorldcoinSocialGraphVoting.sol";
 import { WorldcoinVerifier } from "../src/WorldcoinVerifier.sol";
 import { WorldcoinSocialGraphStorage } from "../src/WorldcoinSocialGraphStorage.sol";
-import {IWorldcoinSocialGraphStorage} from "../src/interfaces/IWorldcoinSocialGraphStorage.sol";
+import { IWorldcoinSocialGraphStorage } from "../src/interfaces/IWorldcoinSocialGraphStorage.sol";
 import { DeployVoting } from "../scripts/voting.s.sol";
 import { WorldcoinSocialGraphTestUtil } from "./Utils.sol";
 
@@ -35,42 +35,42 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
 
     /// @notice will test the worldID registration function
     function test_worldID_register() public {
-        assertTrue(register_worldID_test("Jim", address(this)), "Could not register worldID");
+        register_worldID_test("Jim", address(this));
     }
 
     /// @notice Tests the registration of a candidate.
     /// @dev This function calls `register_candidate_test` with a sample name and address, and asserts the registration
     /// was successful.
     function test_candidate_register() public {
-        assertTrue(register_candidate_test("Pam", address(this)), "Could not register candidate");
+        register_candidate_test("Pam", address(this));
     }
 
     /// @notice Tests the registration of a candidate and expects a revert if the same sender tries to register again.
     /// @dev This function first registers a candidate and then attempts to register the same candidate again to trigger
     /// a revert.
     function test_revert_register_can_for_same_sender() public {
-        assertTrue(register_candidate_test("Pam", address(this)), "Could not register candidate");
+        register_candidate_test("Pam", address(this));
         vm.expectRevert("WorldcoinGraph: ALREADY_REGISTERED");
-        assertTrue(register_candidate_test("Pam", address(this)), "Could not register candidate");
+        register_candidate_test("Pam", address(this));
     }
 
     /// @notice Tests the registration of a World ID and expects a revert if the same sender tries to register again.
     /// @dev This function first registers a World ID and then attempts to register the same World ID again to trigger a
     /// revert.
     function test_revert_register_wID_for_same_sender() public {
-        assertTrue(register_worldID_test("Jim", address(this)), "Could not register worldID");
+        register_worldID_test("Jim", address(this));
         vm.expectRevert("WorldcoinGraph: ALREADY_REGISTERED");
-        assertTrue(register_worldID_test("Jim", address(this)), "Could not register worldID");
+        register_worldID_test("Jim", address(this));
     }
 
     /// @notice Tests the voting of a candidate by a world ID where they have both correctly registered.
     /// @dev First will register the world ID and the candidate then will recommend the candidate with vote weight of
     /// 100 (i.e. all its weight).
     function test_vote_for_1() public {
-        assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");
+        register_worldID_test("Michael", address(this));
 
         vm.prank(address(1234));
-        assertTrue(register_candidate_test("Dwight", address(1234)));
+        register_candidate_test("Dwight", address(1234));
         vm.stopPrank();
 
         vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(1234), 100));
@@ -86,24 +86,16 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         assertEq(voting.getListOfRecommenders(address(1234)).length, 1, "incorrect recommendee length");
         assertEq(voting.getListOfRecommenders(address(1234))[0].weight, 100, "incorrect weight in recommendees");
         assertEq(voting.getListOfRecommenders(address(1234))[0].user, address(this), "incorrect weight in recommendees");
-
-        // return state to original version
-        vp.pop();
-        assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
     /// @notice Tests the voting process with an incorrect candidate address and expects a revert.
     /// @dev This function registers a World ID user and then attempts to vote with a fake candidate address.
 
     function test_revert_vote_incorrect_candidate(address fake_can_addr) public {
-        assertTrue(register_worldID_test("Michael", address(this)), "Could not register worldID user");
+        register_worldID_test("Michael", address(this));
 
         vp.push(IWorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
         vm.expectRevert();
         voting.recommendCandidates(vp);
-
-        // return state to original version
-        vp.pop();
-        assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
 
     /// @notice Tests the voting process when the World ID is not registered and expects a revert.
@@ -115,25 +107,17 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         vp.push(IWorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
         vm.expectRevert("WorldcoinGraph: INVALID_VOTER");
         voting.recommendCandidates(vp);
-
-        // return state to original version
-        vp.pop();
-        assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
 
     /// @notice Tests the voting process by a registered candidate and expects a revert.
     /// @dev This function registers a candidate and then attempts to vote, expecting the `recommendCandidates` function
     /// to revert with the message "WorldcoinGraph: INVALID_VOTER".
     function test_revert_candidate_vote(address fake_can_addr) public {
-        assertTrue(register_candidate_test("Ross", address(this)), "Could not register candidate");
+        register_candidate_test("Ross", address(this));
 
         vp.push(IWorldcoinSocialGraphStorage.VotingPair(fake_can_addr, 100));
         vm.expectRevert("WorldcoinGraph: INVALID_VOTER");
         voting.recommendCandidates(vp);
-
-        // return state to original version
-        vp.pop();
-        assertEq(vp.length, 0, "Voting pair[] pop did not work");
     }
 
     /// @notice will test the update status function to check that a candidate can become a verified identity
@@ -149,7 +133,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
                 vm.assume(addrs[i] != addrs[j]);
             }
         }
-        assertTrue(register_candidate_test("Andy", address(this)));
+        register_candidate_test("Andy", address(this));
 
         for (uint256 i = 0; i < 7; i++) {
             startHoax(addrs[i]);
@@ -160,7 +144,6 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             assertEq(vhot, 0, "User must have voted will all voting power");
             vm.stopPrank();
             vp.pop();
-            assertEq(vp.length, 0, "Voting pair[] pop did not work");
         }
 
         voting.updateStatusVerified();
@@ -192,7 +175,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             }
         }
 
-        assertTrue(register_candidate_test("Andy", address(this)));
+        register_candidate_test("Andy", address(this));
 
         for (uint256 i = 0; i < 6; i++) {
             startHoax(addrs[i]);
@@ -203,7 +186,6 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             assertEq(vhot, 0, "User must have voted will all voting power");
             vm.stopPrank();
             vp.pop();
-            assertEq(vp.length, 0, "Voting pair[] pop did not work");
         }
 
         // candidate calls update status
@@ -225,7 +207,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
                 vm.assume(addrs[i] != addrs[j]);
             }
         }
-        assertTrue(register_candidate_test("Andy", address(this)));
+        register_candidate_test("Andy", address(this));
 
         for (uint256 i = 0; i < 13; i++) {
             startHoax(addrs[i]);
@@ -236,7 +218,6 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             assertEq(vhot, 50, "User must have voted will half their voting power");
             vm.stopPrank();
             vp.pop();
-            assertEq(vp.length, 0, "Voting pair[] pop did not work");
         }
 
         // candidate calls update status
@@ -263,7 +244,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             }
         }
 
-        assertTrue(register_candidate_test("Andy", address(this)));
+        register_candidate_test("Andy", address(this));
 
         for (uint256 i = 0; i < 7; i++) {
             startHoax(addrs[i]);
@@ -274,7 +255,6 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             assertEq(vhot, 0, "User must have voted will all voting power");
             vm.stopPrank();
             vp.pop();
-            assertEq(vp.length, 0, "Voting pair[] pop did not work");
         }
 
         // candidate calls update status
@@ -327,7 +307,7 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
             }
         }
 
-        assertTrue(register_candidate_test("Andy", address(this)));
+        register_candidate_test("Andy", address(this));
 
         for (uint256 i = 0; i < 7; i++) {
             startHoax(addrs[i]);
@@ -358,10 +338,10 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
     /// @notice will test penalise of a recommender
     /// @dev will register a candidate and a world ID, then the world ID will vote and the candidate will penalise them.
     function test_penalise_recommender() public {
-        assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");
+        register_worldID_test("Michael", address(this));
 
         vm.prank(address(1234));
-        assertTrue(register_candidate_test("Dwight", address(1234)));
+        register_candidate_test("Dwight", address(1234));
         vm.stopPrank();
 
         vp.push(IWorldcoinSocialGraphStorage.VotingPair(address(1234), 100));
@@ -377,10 +357,6 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
         assertEq(voting.getListOfRecommenders(address(1234)).length, 1, "incorrect recommendee length");
         assertEq(voting.getListOfRecommenders(address(1234))[0].weight, 100, "incorrect weight in recommendees");
 
-        // return state to original version
-        vp.pop();
-        assertEq(vp.length, 0, "Voting pair[] pop did not work");
-
         (,, uint256 vcold_worldID,,) = voting.users(address(this));
         assertEq(vcold_worldID, 100, "vcold not increased");
 
@@ -394,10 +370,10 @@ contract WorldcoinSocialGraphVotingTest is WorldcoinSocialGraphTestUtil {
     /// @notice will test penalise of a world ID that is not a recommender
     /// @dev will register a candidate and a world ID, then the candidate will penalise them but it should revert.
     function test_penalise_no_vote() public {
-        assertTrue(register_worldID_test("Michael", address(this)), "Could not sign up user");
+        register_worldID_test("Michael", address(this));
 
         startHoax(address(1234));
-        assertTrue(register_candidate_test("Dwight", address(1234)));
+        register_candidate_test("Dwight", address(1234));
         vm.expectRevert("WorldcoinGraph: RECOMMENDER_NOT_FOUND");
         voting.penalise(address(this));
         vm.stopPrank();

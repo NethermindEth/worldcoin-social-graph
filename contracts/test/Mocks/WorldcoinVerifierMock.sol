@@ -15,5 +15,5 @@ contract WorldcoinVerifierMock is IWorldcoinVerifier {
     )
         public
         override
-    {}
+    { }
 }

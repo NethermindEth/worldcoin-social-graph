@@ -43,7 +43,8 @@ interface IWorldcoinSocialGraphVoting is IWorldcoinSocialGraphStorage {
         uint256 _root,
         uint256 _nullifierHash,
         uint256[8] calldata _proof
-    ) external;
+    )
+        external;
 
     /**
      * @notice Function to register an account as a Candidate
