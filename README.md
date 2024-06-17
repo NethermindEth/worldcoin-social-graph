@@ -2,6 +2,20 @@
 
 An additional layer for Worldcoin's proof of personhood. This project aims to build a public social-graph based proof i.e. the existing World ID users will be able to vouch for the humanness of other parties(who are not World ID users). This way, we will be able to expand the user database for World ID holders. 
 
+This project is [funded by Worldcoin](https://worldcoin.org/wave0-grant-recipients/nethermind-social-graph) (https://worldcoin.org/wave0-grant-recipients/nethermind-social-graph).
+
+Contributors (in alphabetic order):
+
+Research: Aikaterini-Panagiota Stouka, Michal Zajac
+
+Implementation: Michael Belegris, Somya Gupta
+
+Thanks to Lazaro Raul Iglesias Vera, Sameer Kumar, Antonio Manuel Larriba Flor for reviewing and providing valuable suggestions and guidelines. 
+
+For an overview, the specification, more related work and Sybil and Game theoretic analysis please check our notion pages.
+
+You can follow the instructions below taken from the README file of [https://github.com/worldcoin/world-id-onchain-template](https://github.com/worldcoin/world-id-onchain-template).
+
 ## Local Development
 
 ### Prerequisites
@@ -11,7 +25,7 @@ Create a staging on-chain app in the [Worldcoin Developer Portal](https://develo
 Ensure that you have installed:
 - [Foundry](https://book.getfoundry.sh/getting-started/installation)
 - [NodeJS](https://nodejs.org/en/download) (at least v16.14)
-- [pnpm](https://pnpm.io/installation).
+- [pnpm](https://pnpm.io/installation)
 
 ### Local Testnet Setup
 
@@ -123,9 +137,9 @@ cast send $VOTINGCONTRACT "updateStatusVerified()" --private-key $CANDIDATEPRIVA
 
 1. Worldcoin: https://docs.worldcoin.org/
 2. Worldcoin Developer Portal: https://developer.worldcoin.org
-3. The template provided by Worlcoin for WorldID On-chain Integration: used as is and integrated with on-chain components. Link: https://github.com/worldcoin/world-id-onchain-template.
+3. The template provided by Worldcoin for WorldID On-chain Integration: used as is and integrated with on-chain components. Link: https://github.com/worldcoin/world-id-onchain-template.
 4. Worldcoin simulator: used to register WorldID holders during testing. Link: https://simulator.worldcoin.org/id/0x18310f83
-5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK Consulting. Link: https://github.com/abdk-consulting/abdk-libraries-solidity
+5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK (abdk-consulting). Link: https://github.com/abdk-consulting/abdk-libraries-solidity.  Licence: BSD-4-Clause license.
 
 ```bash
 Copyright (c) 2019, ABDK Consulting
@@ -134,9 +148,27 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-All advertising materials mentioning features or use of this software must display the following acknowledgement: This product includes software developed by ABDK Consulting.
-Neither the name of ABDK Consulting nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software must display the following acknowledgement: This product includes software developed by ABDK Consulting.
+4. Neither the name of ABDK Consulting nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 THIS SOFTWARE IS PROVIDED BY ABDK CONSULTING ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ABDK CONSULTING BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+6. IDKit: used for interaction with the WorldID protocol through React. Authors: Worldcoin (worldcoin). Link: https://github.com/worldcoin/idkit-js. Licence: MIT Licence.
+```bash
+Copyright (c) 2022 Worldcoin Foundation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+7. The penalise technique of our design is inspired by
+- Orfeas Stefanos Thyfronitis Litos, Dionysis Zindros: Trust Is Risk: A Decentralized Financial Trust Platform. IACR Cryptol. ePrint Arch. 2017: 156 (2017). https://eprint.iacr.org/2017/156.
+
+- BrightID. Bitu verification. https://brightid.gitbook.io/brightid/verifications/bitu-verification.
+
+#### For more related work, overview, Sybil and Game theoretic analysis of our design please check our notion page
