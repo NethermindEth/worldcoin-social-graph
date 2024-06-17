@@ -1,32 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
-
 pragma solidity >=0.8.2 <0.9.0;
 
-contract WorldcoinSocialGraphStorage {
-    struct VotingPair {
-        address user;
-        uint256 weight;
-    }
+import { IWorldcoinSocialGraphStorage } from "./interfaces/IWorldcoinSocialGraphStorage.sol";
 
-    enum Status {
-        UNREGISTERED,
-        WORLD_ID_HOLDER,
-        CANDIDATE,
-        VERIFIED_IDENTITIY,
-        REJECTED
-    }
-
-    struct User {
-        string name;
-        //VAL of node and is a dynamic variable
-        uint256 vhot;
-        uint256 vcold;
-        //depends on `VAL` of node and is dynamic
-        /// @notice Status enum
-        Status status;
-        uint256 totalReward;
-    }
-
+contract WorldcoinSocialGraphStorage is IWorldcoinSocialGraphStorage {
     /// @notice total amount of voting power allocated to the candidates
     /// @dev maps epoch to sum
     mapping(uint256 epoch => uint256 distributedVotingPower) public rewardsPerEpoch;
@@ -36,20 +13,21 @@ contract WorldcoinSocialGraphStorage {
     /// verified in that epoch
     mapping(address => mapping(uint256 => uint256) epochWeights) public userEpochWeights;
 
-    //x is the minimum power of Verified users needed in order to create fake Verified identities
+    /// @notice x is the minimum power of Verified users needed in order to create fake Verified identities
     uint16 internal constant x = 600;
-    // alpha parameter that determines the percentage of the voting power that will be returned to recommenders when a
-    // candidate becomes verified
+    /// @notice alpha parameter that determines the percentage of the voting power that will be returned to recommenders
+    /// when a candidate becomes verified
     uint8 internal constant a = 60;
-    // parameter that determines the rewards per epoch to be shared
+    /// @notice parameter that determines the rewards per epoch to be shared
     uint32 internal constant c = 140_000;
-    //stores candidates and world Id holders
+    // @notice stores candidates and world Id holders
     mapping(address => User) public users;
-    //sum of weights allocated to a candidate user
+    /// @notice sum of weights allocated to a candidate user
     mapping(address => uint256) public assignedWeight;
-
-    mapping(address => VotingPair[]) public recommendees; // users who you vote/vouch for
-    mapping(address => VotingPair[]) public recommenders; // users who vote/vouch for you
+    /// @notice users who you vote/vouch for
+    mapping(address => VotingPair[]) internal recommendees;
+    /// @notice users who vote/vouch for you
+    mapping(address => VotingPair[]) internal recommenders;
 
     modifier onlyUnregistered(address _user) {
         require(users[_user].status == Status.UNREGISTERED, "WorldcoinGraph: ALREADY_REGISTERED");
@@ -58,7 +36,7 @@ contract WorldcoinSocialGraphStorage {
 
     modifier onlyValidVoter(address _user) {
         require(
-            users[_user].status == Status.WORLD_ID_HOLDER || users[_user].status == Status.VERIFIED_IDENTITIY,
+            users[_user].status == Status.WORLD_ID_HOLDER || users[_user].status == Status.VERIFIED_IDENTITY,
             "WorldcoinGraph: INVALID_VOTER"
         );
         _;
