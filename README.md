@@ -135,11 +135,11 @@ cast send $VOTINGCONTRACT "updateStatusVerified()" --private-key $CANDIDATEPRIVA
 
 ### References and useful links
 
-1. Worldcoin: https://docs.worldcoin.org/
-2. Worldcoin Developer Portal: https://developer.worldcoin.org
+1. Worldcoin: https://docs.worldcoin.org/.
+2. Worldcoin Developer Portal: https://developer.worldcoin.org.
 3. The template provided by Worldcoin for WorldID On-chain Integration: used as is and integrated with on-chain components. Link: https://github.com/worldcoin/world-id-onchain-template.
-4. Worldcoin simulator: used to register WorldID holders during testing. Link: https://simulator.worldcoin.org/id/0x18310f83
-5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK (abdk-consulting). Link: https://github.com/abdk-consulting/abdk-libraries-solidity.  Licence: BSD-4-Clause license.
+4. Worldcoin simulator: used to register WorldID holders during testing. Link: https://simulator.worldcoin.org/id/0x18310f83.
+5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK (abdk-consulting). Link: https://github.com/abdk-consulting/abdk-libraries-solidity. Licence: BSD-4-Clause license.
 
 ```bash
 Copyright (c) 2019, ABDK Consulting
