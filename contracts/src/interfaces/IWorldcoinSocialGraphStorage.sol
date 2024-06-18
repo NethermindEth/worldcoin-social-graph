@@ -6,8 +6,7 @@ interface IWorldcoinSocialGraphStorage {
         UNREGISTERED,
         WORLD_ID_HOLDER,
         CANDIDATE,
-        VERIFIED_IDENTITY,
-        REJECTED
+        VERIFIED_IDENTITY
     }
 
     struct VotingPair {
