@@ -5,7 +5,6 @@ import { WorldcoinSocialGraphVoting } from "../src/WorldcoinSocialGraphVoting.so
 import { WorldcoinVerifier } from "../src/WorldcoinVerifier.sol";
 import { WorldcoinSocialGraphStorage } from "../src/WorldcoinSocialGraphStorage.sol";
 import { IWorldcoinSocialGraphStorage } from "../src/interfaces/IWorldcoinSocialGraphStorage.sol";
-import { DeployVoting } from "../scripts/voting.s.sol";
 import { WorldcoinSocialGraphTestUtil } from "./Utils.sol";
 
 /// @title Testing for social graph

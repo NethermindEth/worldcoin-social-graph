@@ -7,7 +7,6 @@ import { WorldcoinSocialGraphVoting } from "../src/WorldcoinSocialGraphVoting.so
 import { WorldcoinVerifierMock } from "./Mocks/WorldcoinVerifierMock.sol";
 import { WorldcoinSocialGraphStorage } from "../src/WorldcoinSocialGraphStorage.sol";
 import { IWorldcoinSocialGraphStorage } from "../src/interfaces/IWorldcoinSocialGraphStorage.sol";
-import { DeployVoting } from "../scripts/voting.s.sol";
 import { IWorldcoinVerifier } from "../src/interfaces/IWorldcoinVerifier.sol";
 
 contract WorldcoinSocialGraphTestUtil is Test {
