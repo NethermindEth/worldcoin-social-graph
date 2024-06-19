@@ -1,6 +1,6 @@
 # Public social-graph based proof of personhood
 
-An additional layer for Worldcoin's proof of personhood. This project aims to build a public social-graph based proof i.e. the existing World ID users will be able to vouch for the humanness of other parties(who are not World ID users). This way, we will be able to expand the user database for World ID holders. 
+An additional layer for Worldcoin's proof of personhood. This project aims to build a social-graph-based proof of personhood that is based on World ID users,  i.e. the existing World ID users will be able to vouch for the humanness of other parties (who are not World ID users). This way, we will be able to expand the user database for World ID holders.
 
 This project is [funded by Worldcoin](https://worldcoin.org/wave0-grant-recipients/nethermind-social-graph) (https://worldcoin.org/wave0-grant-recipients/nethermind-social-graph).
 
@@ -141,4 +141,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 - BrightID. Bitu verification. https://brightid.gitbook.io/brightid/verifications/bitu-verification.
 
-#### For more related work, overview, Sybil and Game theoretic analysis of our design please check our notion page
+#### For more related work, overview, Sybil and Game theoretic analysis of our design please check our notion page.
