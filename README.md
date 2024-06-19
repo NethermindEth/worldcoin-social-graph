@@ -96,42 +96,12 @@ After making changes to the contract, you should:
 
 ### Testing
 
-You'll need to import the private keys on the local testnet into your wallet used for local development. The default development seed phrase is `test test test test test test test test test test test junk`.
+See the test folder [here](./contracts/test/WorldcoinSocialGraphVoting.t.sol). Run tests with forge test.
 
-> [!CAUTION]
-> This is only for local development. Do not use this seed phrase on mainnet or any public testnet.
+#### Note :
+- When connecting your wallet to the local development environment, you will be prompted to add the network to your wallet.
 
-When connecting your wallet to the local development environment, you will be prompted to add the network to your wallet.
-
-Use the [Worldcoin Simulator](https://simulator.worldcoin.org) in place of World App to scan the IDKit QR codes and generate the zero-knowledge proofs.
-
-### E2E testing
-
-This is a walkthrough to show how to sign up and update one user to verified. For a full run through check `e2e.sh` which has sample values included for simplicity.
-
-In a new terminal, follow these steps:
-
-**Step 1: Register as candidate:** *this is the candidate to be updated. Take a note of the userID you will need it in step 3*
-
-```bash
-cast send $VOTINGCONTRACT "registerAsCandidate(string _name)" $NAME --private-key $PRIVATEKEY
-```
-
-**Step 2a: Register as worldID holder:** *for testing, we need several WorldID users in order to update status of a candidate to verified*
-
-Use the react app to register each worldID user to the contract.
-
-**Step 2b: Vote for the candidate:** *we recommend voting with 100% of the voting power each time to fast track the results during testing*
-
-```bash
-cast send $VOTINGCONTRACT "recommendCandidate((uint, uint)[])" "[($USERID, 100)]" --private-key $PRIVATEKEY
-```
-
-**Step 3: Update status of a candidate user to verified**
-
-```bash
-cast send $VOTINGCONTRACT "updateStatusVerified()" --private-key $CANDIDATEPRIVATEKEY
-```
+- Use the [Worldcoin Simulator](https://simulator.worldcoin.org) in place of World App to scan the IDKit QR codes and generate the zero-knowledge proofs.
 
 ### References and useful links
 
