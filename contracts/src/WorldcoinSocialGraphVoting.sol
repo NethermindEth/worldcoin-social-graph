@@ -185,11 +185,10 @@ contract WorldcoinSocialGraphVoting is IWorldcoinSocialGraphVoting, WorldcoinSoc
         uint256 c_epoch = currentEpoch();
         uint256 totalReward = users[msg.sender].totalReward;
         for (uint256 i = 0; i != epochs.length; i++) {
-            uint256 epoch = epochs[i];
             if (epochs[i] < c_epoch && rewardsPerEpoch[epochs[i]] != 0 && userEpochWeights[msg.sender][epochs[i]] != 0) {
                 // increase totalReward of the sender in users map
-                totalReward += Math.mulDiv(c, userEpochWeights[msg.sender][epoch], rewardsPerEpoch[epoch]);
-                delete userEpochWeights[msg.sender][epoch];
+                totalReward += Math.mulDiv(c, userEpochWeights[msg.sender][epochs[i]], rewardsPerEpoch[epochs[i]]);
+                delete userEpochWeights[msg.sender][epochs[i]];
             }
         }
         users[msg.sender].totalReward = totalReward;
