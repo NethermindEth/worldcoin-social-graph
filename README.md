@@ -12,9 +12,9 @@ Implementation: Michael Belegris, Somya Gupta
 
 Thanks to Lazaro Raul Iglesias Vera, Sameer Kumar, Antonio Manuel Larriba Flor for reviewing and providing valuable suggestions and guidelines. 
 
-For an overview, the specification, more related work and Sybil and Game theoretic analysis please check our notion pages.
+For the project scope, the overview, the specification, more related work and the Sybil and game theoretic analysis please check https://www.notion.so/EXT-Proof-of-Concept-for-Public-Social-Graph-Sybil-and-Incentives-analysis-af7af3271dc34094b8505410f6504b70?pvs=4.
 
-You can follow the instructions below taken from the README file of [https://github.com/worldcoin/world-id-onchain-template](https://github.com/worldcoin/world-id-onchain-template).
+You can follow the instructions below taken from the README file ofÂ [https://github.com/worldcoin/world-id-onchain-template](https://github.com/worldcoin/world-id-onchain-template).
 
 ## Local Development
 
@@ -109,7 +109,7 @@ See the test folder [here](./contracts/test/WorldcoinSocialGraphVoting.t.sol). R
 2. Worldcoin Developer Portal: https://developer.worldcoin.org.
 3. The template provided by Worldcoin for WorldID On-chain Integration: used as is and integrated with on-chain components. Link: https://github.com/worldcoin/world-id-onchain-template.
 4. Worldcoin simulator: used to register WorldID holders during testing. Link: https://simulator.worldcoin.org/id/0x18310f83.
-5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK (abdk-consulting). Link: https://github.com/abdk-consulting/abdk-libraries-solidity. Licence: BSD-4-Clause license.
+5. ABDKMath64x64 library: used for implementing the inverse exponential function. Authors: ABDK (abdk-consulting). Link: https://github.com/abdk-consulting/abdk-libraries-solidity. Licence:Â BSD-4-Clause license.
 
 ```bash
 Copyright (c) 2019, ABDK Consulting
@@ -137,7 +137,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ```
 
 7. The penalise technique of our design is inspired by
-- Orfeas Stefanos Thyfronitis Litos, Dionysis Zindros: Trust Is Risk: A Decentralized Financial Trust Platform. IACR Cryptol. ePrint Arch. 2017: 156 (2017). https://eprint.iacr.org/2017/156.
+- Orfeas Stefanos Thyfronitis Litos,Â Dionysis Zindros: Trust Is Risk: A Decentralized Financial Trust Platform.Â IACR Cryptol. ePrint Arch.Â 2017:Â 156Â (2017). https://eprint.iacr.org/2017/156.
 
 - BrightID. Bitu verification. https://brightid.gitbook.io/brightid/verifications/bitu-verification.
 
