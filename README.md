@@ -13,6 +13,10 @@ Implementation: Michael Belegris, Somya Gupta
 Thanks to Lazaro Raul Iglesias Vera, Sameer Kumar, Antonio Manuel Larriba Flor for reviewing and providing valuable suggestions and guidelines. 
 
 For the project scope, the overview, the specification, more related work, and the Sybil and Game theoretic analysis please check https://www.notion.so/EXT-Proof-of-Concept-for-Public-Social-Graph-Sybil-and-Incentives-analysis-af7af3271dc34094b8505410f6504b70?pvs=4.
+We have designed and implemented also a private social-graph-based proof of personhood that you can find in the following links. 
+
+- Private social-graph-based proof of personhood notion page: [https://www.notion.so/nethermind/EXT-Proof-of-Concept-for-Private-Social-Graph-6404b66352c14aa8b52c77d4ab7733f6?pvs=4](https://www.notion.so/EXT-Proof-of-Concept-for-Private-Social-Graph-6404b66352c14aa8b52c77d4ab7733f6?pvs=21).
+- Private social-graph-based proof of personhood GitHub repository: https://github.com/NethermindEth/worldcoin-private-social-graph.
 
 You can follow the instructions below taken from the README file of [https://github.com/worldcoin/world-id-onchain-template](https://github.com/worldcoin/world-id-onchain-template).
 
